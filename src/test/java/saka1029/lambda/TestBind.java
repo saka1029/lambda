@@ -12,6 +12,9 @@ public class TestBind {
         assertEquals((Integer)0, Bind.get(bind, "zero"));
         assertEquals((Integer)1, Bind.get(bind, "one"));
         assertEquals(null, Bind.get(bind, "three"));
+        Bind<String, Integer> bind2 = Bind.bind(bind, "zero", 1000);
+        assertEquals((Integer)1000, Bind.get(bind2, "zero"));
+        assertEquals((Integer)0, Bind.get(bind, "zero"));
     }
 
     @Test
