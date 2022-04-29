@@ -17,4 +17,12 @@ public class TestLambdaCalculus {
         assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa.λb.c").toString());
         assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa b.c").toString());
     }
+
+    @Test
+    public void testParseLambdaScope() {
+        Expression e = LambdaCalculus.parse("λx.λx.x");
+        Lambda first = (Lambda)e;
+        Lambda second = (Lambda)first.body;
+        assertEquals(second.variable, second.body);
+    }
 }
