@@ -1,10 +1,9 @@
-package saka1029.lambda.io;
+package saka1029.lambda;
 
 import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.io.StringReader;
 import org.junit.Test;
-import saka1029.lambda.CodePointReader;
 
 public class TestCodePointReader {
 
