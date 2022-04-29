@@ -1,4 +1,4 @@
-package saka1029.io;
+package saka1029.lambda;
 
 import java.io.IOException;
 import java.io.Reader;

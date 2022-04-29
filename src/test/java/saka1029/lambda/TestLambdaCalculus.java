@@ -1,6 +1,7 @@
 package saka1029.lambda;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import org.junit.Test;
 
 public class TestLambdaCalculus {
@@ -23,6 +24,7 @@ public class TestLambdaCalculus {
         Expression e = LambdaCalculus.parse("λx.λx.x");
         Lambda first = (Lambda)e;
         Lambda second = (Lambda)first.body;
-        assertEquals(second.variable, second.body);
+        // 最後のxは2番目のラムダ式の束縛変数
+        assertSame(second.variable, second.body);
     }
 }

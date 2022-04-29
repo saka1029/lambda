@@ -3,7 +3,6 @@ package saka1029.lambda;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import saka1029.io.CodePointReader;
 
 public class LambdaCalculus {
     
