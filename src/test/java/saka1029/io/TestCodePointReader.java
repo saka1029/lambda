@@ -11,21 +11,28 @@ public class TestCodePointReader {
 
     @Test
     public void testRead() throws IOException {
-        try (CodePointReader reader = new CodePointReader(new StringReader(SURROG))) {
-            assertEquals('a', reader.read());
-            assertEquals(SURROG.codePointAt(1), reader.read());
-            assertEquals('b', reader.read());
-            assertEquals(-1, reader.read());
-        }
+        CodePointReader reader = new CodePointReader(new StringReader(SURROG));
+        assertEquals('a', reader.read());
+        assertEquals(SURROG.codePointAt(1), reader.read());
+        assertEquals('b', reader.read());
+        assertEquals(-1, reader.read());
     }
 
     @Test
     public void testRead2() throws IOException {
-        try (CodePointReader reader = new CodePointReader(SURROG)) {
-            assertEquals('a', reader.read());
-            assertEquals(SURROG.codePointAt(1), reader.read());
-            assertEquals('b', reader.read());
-            assertEquals(-1, reader.read());
-        }
+        CodePointReader reader = new CodePointReader(SURROG);
+        assertEquals('a', reader.read());
+        assertEquals(SURROG.codePointAt(1), reader.read());
+        assertEquals('b', reader.read());
+        assertEquals(-1, reader.read());
+    }
+
+    @Test
+    public void testCodePointReader() throws IOException {
+        String s = "😅😆";
+        CodePointReader reader = new CodePointReader(new StringReader(s));
+        assertEquals(s.codePointAt(0), reader.read());
+        assertEquals(s.codePointAt(2), reader.read());
+        assertEquals(-1, reader.read());
     }
 }
