@@ -1,18 +1,17 @@
 package saka1029.lambda;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import saka1029.io.CodePointReader;
 
 public class LambdaCalculus {
     
     private LambdaCalculus() {}
 
     public static Expression parse(String source) {
-        return parse(new StringReader(source));
+        return parse(new CodePointReader(source));
     }
 
-    public static Expression parse(Reader reader) {
+    public static Expression parse(CodePointReader reader) {
         return new Object() {
             int ch = get();
 

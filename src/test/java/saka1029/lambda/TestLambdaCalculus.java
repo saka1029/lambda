@@ -17,5 +17,4 @@ public class TestLambdaCalculus {
         assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa.λb.c").toString());
         assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa b.c").toString());
     }
-    
 }
