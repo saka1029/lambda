@@ -2,10 +2,15 @@ package saka1029.lambda;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 
 public class LambdaCalculus {
     
     private LambdaCalculus() {}
+
+    public static Expression parse(String source) {
+        return parse(new StringReader(source));
+    }
 
     public static Expression parse(Reader reader) {
         return new Object() {
@@ -13,7 +18,7 @@ public class LambdaCalculus {
 
             int get() {
                 try {
-                    return reader.read();
+                    return ch = reader.read();
                 } catch (IOException e) {
                     throw new LambdaCalculusException(e);
                 }
@@ -37,7 +42,7 @@ public class LambdaCalculus {
             String variableName() {
                 StringBuilder sb = new StringBuilder();
                 while (isVariable(ch)) {
-                    sb.append(ch);
+                    sb.append((char)ch);
                     get();
                 }
                 return sb.toString();
@@ -49,7 +54,7 @@ public class LambdaCalculus {
                     throw new LambdaCalculusException("variable expected but '%c'", (char)ch);
                 String name = variableName();
                 BoundVariable variable = BoundVariable.of(name);
-                Bind<String, BoundVariable> newBind = Bind.of(bind, name, variable);
+                Bind<String, BoundVariable> newBind = Bind.put(bind, name, variable);
                 Expression body;
                 if (ch == '.') {
                     get();      // skip '.'
