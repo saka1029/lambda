@@ -11,7 +11,7 @@ public class Bind<K, V> {
         this.value = value;
     }
 
-    public static <K, V> Bind<K, V> bind(Bind<K, V> previous, K key, V value) {
+    public static <K, V> Bind<K, V> of(Bind<K, V> previous, K key, V value) {
         return new Bind<>(previous, key, value);
     }
 

@@ -2,7 +2,11 @@ package saka1029.lambda;
 
 public class BoundVariable extends Variable {
 
-    public BoundVariable(String name) {
+    private BoundVariable(String name) {
         super(name);
+    }
+
+    public static BoundVariable of(String name) {
+        return new BoundVariable(name);
     }
 }

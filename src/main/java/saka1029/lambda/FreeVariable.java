@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class FreeVariable extends Variable {
 
-    static final Map<String, FreeVariable> all = new HashMap<>();
+    private static final Map<String, FreeVariable> all = new HashMap<>();
 
-    FreeVariable(String name) {
+    private FreeVariable(String name) {
         super(name);
     }
 
