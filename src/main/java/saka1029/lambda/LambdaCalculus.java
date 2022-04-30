@@ -132,6 +132,37 @@ public class LambdaCalculus {
         }.parse();
     }
 
+    public static String string(Expression e) {
+        return new Object() {
+            StringBuilder sb = new StringBuilder();
+
+            String string(Expression e) {
+                if (e instanceof Lambda lambda) {
+                    sb.append("λ").append(lambda.variable)
+                        .append(".");
+                    string(lambda.body);
+                } else if (e instanceof Application application) {
+                    boolean headParen = application.head instanceof Lambda;
+                    boolean tailParen = !(application.tail instanceof Variable);
+                    if (headParen)
+                        sb.append("(");
+                    string(application.head);
+                    if (headParen)
+                        sb.append(")");
+                    sb.append(" ");
+                    if (tailParen)
+                        sb.append("(");
+                    string(application.tail);
+                    if (tailParen)
+                        sb.append(")");
+                } else
+                    sb.append(e);
+                return sb.toString();
+            }
+
+        }.string(e);
+    }
+
     public static String toNormalizedString(Expression e) {
         return new Object() {
             StringBuilder sb = new StringBuilder();

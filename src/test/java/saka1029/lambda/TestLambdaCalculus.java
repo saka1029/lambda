@@ -45,9 +45,19 @@ public class TestLambdaCalculus {
     }
 
     @Test
+    public void testString() {
+        assertEquals("λa.b", string(parse("λa.b")));
+        assertEquals("λa.a", string(parse("λa.a")));
+        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.a b c")));
+        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.(a b c)")));
+        assertEquals("λa.λa.λa.a", string(parse("λa.λa.λa.a")));
+    }
+
+    @Test
     public void testToNormalizedString() {
         assertEquals("λ%0.b", toNormalizedString(parse("λa.b")));
         assertEquals("λ%0.%0", toNormalizedString(parse("λa.a")));
+        assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", toNormalizedString(parse("λa b c.a b c")));
         assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", toNormalizedString(parse("λa b c.(a b c)")));
         assertEquals("λ%0.λ%1.λ%2.%2", toNormalizedString(parse("λa.λa.λa.a")));
     }
