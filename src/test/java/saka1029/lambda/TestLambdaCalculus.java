@@ -8,15 +8,15 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseApplication() {
-        assertEquals("Application(a, b)", LambdaCalculus.parse("a b").toString());
-        assertEquals("Application(Application(a, b), c)", LambdaCalculus.parse("a b c").toString());
+        assertEquals("A(a b)", LambdaCalculus.parse("a b").toString());
+        assertEquals("A(A(a b) c)", LambdaCalculus.parse("a b c").toString());
     }
 
     @Test
     public void testParseLambda() {
-        assertEquals("Lambda(a, b)", LambdaCalculus.parse("λa.b").toString());
-        assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa.λb.c").toString());
-        assertEquals("Lambda(a, Lambda(b, c))", LambdaCalculus.parse("λa b.c").toString());
+        assertEquals("λ(a b)", LambdaCalculus.parse("λa.b").toString());
+        assertEquals("λ(a λ(b c))", LambdaCalculus.parse("λa.λb.c").toString());
+        assertEquals("λ(a λ(b c))", LambdaCalculus.parse("λa b.c").toString());
     }
 
     @Test

@@ -15,6 +15,6 @@ public class Application implements Expression {
 
     @Override
     public String toString() {
-        return "Application(%s, %s)".formatted(head, tail);
+        return "A(%s %s)".formatted(head, tail);
     }
 }
