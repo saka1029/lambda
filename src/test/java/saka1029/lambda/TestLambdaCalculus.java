@@ -20,6 +20,13 @@ public class TestLambdaCalculus {
     }
 
     @Test
+    public void testParseLambdaBackslash() {
+        assertEquals("λ(a b)", LambdaCalculus.parse("\\a.b").toString());
+        assertEquals("λ(a λ(b c))", LambdaCalculus.parse("\\a.\\b.c").toString());
+        assertEquals("λ(a λ(b c))", LambdaCalculus.parse("\\a b.c").toString());
+    }
+
+    @Test
     public void testParseLambdaScope() {
         Expression e = LambdaCalculus.parse("λx.λx.x");
         Lambda first = (Lambda)e;
