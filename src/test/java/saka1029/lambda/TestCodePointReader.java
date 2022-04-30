@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import org.junit.Test;
 
+import static saka1029.lambda.LambdaCalculus.CodePointReader;
+
 public class TestCodePointReader {
 
     static String SURROG = "a𩸽b"; // サロゲート文字はvscodeで編集すると化けるので注意する。

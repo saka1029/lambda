@@ -54,11 +54,11 @@ public class TestLambdaCalculus {
     }
 
     @Test
-    public void testToNormalizedString() {
-        assertEquals("λ%0.b", toNormalizedString(parse("λa.b")));
-        assertEquals("λ%0.%0", toNormalizedString(parse("λa.a")));
-        assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", toNormalizedString(parse("λa b c.a b c")));
-        assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", toNormalizedString(parse("λa b c.(a b c)")));
-        assertEquals("λ%0.λ%1.λ%2.%2", toNormalizedString(parse("λa.λa.λa.a")));
+    public void testNormalize() {
+        assertEquals("λ%0.b", normalize(parse("λa.b")));
+        assertEquals("λ%0.%0", normalize(parse("λa.a")));
+        assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", normalize(parse("λa b c.a b c")));
+        assertEquals("λ%0.λ%1.λ%2.%0 %1 %2", normalize(parse("λa b c.(a b c)")));
+        assertEquals("λ%0.λ%1.λ%2.%2", normalize(parse("λa.λa.λa.a")));
     }
 }
