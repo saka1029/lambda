@@ -138,28 +138,26 @@ public class LambdaCalculus {
 
             String string(Expression e) {
                 if (e instanceof Lambda lambda) {
-                    sb.append("λ").append(lambda.variable)
-                        .append(".");
+                    sb.append("λ").append(lambda.variable).append(".");
                     string(lambda.body);
-                } else if (e instanceof Application application) {
-                    boolean headParen = application.head instanceof Lambda;
-                    boolean tailParen = !(application.tail instanceof Variable);
+                } else if (e instanceof Application a) {
+                    boolean headParen = a.head instanceof Lambda;
+                    boolean tailParen = !(a.tail instanceof Variable);
                     if (headParen)
                         sb.append("(");
-                    string(application.head);
+                    string(a.head);
                     if (headParen)
                         sb.append(")");
                     sb.append(" ");
                     if (tailParen)
                         sb.append("(");
-                    string(application.tail);
+                    string(a.tail);
                     if (tailParen)
                         sb.append(")");
                 } else
                     sb.append(e);
                 return sb.toString();
             }
-
         }.string(e);
     }
 
@@ -170,24 +168,24 @@ public class LambdaCalculus {
             int variableNumber = 0;
 
             String normalize(Expression e) {
-                if (e instanceof Lambda lambda) {
+                if (e instanceof Lambda l) {
                     String variableName = "%" + (variableNumber++);
                     sb.append("λ").append(variableName).append(".");
-                    try (Unbind u = binder.bind(lambda.variable, variableName)) {
-                        normalize(lambda.body);
+                    try (Unbind u = binder.bind(l.variable, variableName)) {
+                        normalize(l.body);
                     }
-                } else if (e instanceof Application application) {
-                    boolean headParen = application.head instanceof Lambda;
-                    boolean tailParen = !(application.tail instanceof Variable);
+                } else if (e instanceof Application a) {
+                    boolean headParen = a.head instanceof Lambda;
+                    boolean tailParen = !(a.tail instanceof Variable);
                     if (headParen)
                         sb.append("(");
-                    normalize(application.head);
+                    normalize(a.head);
                     if (headParen)
                         sb.append(")");
                     sb.append(" ");
                     if (tailParen)
                         sb.append("(");
-                    normalize(application.tail);
+                    normalize(a.tail);
                     if (tailParen)
                         sb.append(")");
                 } else if (e instanceof BoundVariable variable)
@@ -196,7 +194,6 @@ public class LambdaCalculus {
                     sb.append(e);
                 return sb.toString();
             }
-
         }.normalize(e);
     }
 }
