@@ -6,6 +6,7 @@ import java.io.StringReader;
 
 /**
  * コードポイントを返すReaderのフィルターです。
+ * read()はUTF-16の1文字ではなく、コードポイントとしての1文字を返します。
  */
 public class CodePointReader {
 
