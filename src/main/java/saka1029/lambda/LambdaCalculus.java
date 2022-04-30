@@ -48,7 +48,7 @@ public class LambdaCalculus {
             String variableName() {
                 StringBuilder sb = new StringBuilder();
                 while (isVariable(ch)) {
-                    sb.append((char) ch);
+                    sb.appendCodePoint(ch);
                     get();
                 }
                 return sb.toString();
@@ -57,7 +57,8 @@ public class LambdaCalculus {
             Lambda lambda() {
                 spaces();
                 if (!isVariable(ch))
-                    throw new LambdaCalculusException("variable expected but '%c'", (char) ch);
+                    throw new LambdaCalculusException("variable expected but '%s'",
+                        Character.toString(ch));
                 String name = variableName();
                 BoundVariable variable = BoundVariable.of(name);
                 try (Unbind u = binder.bind(name, variable)) {
@@ -104,7 +105,8 @@ public class LambdaCalculus {
                         return paren();
                     default:
                         if (!isVariable(ch))
-                            throw new LambdaCalculusException("unexpected char '%c'", (char) ch);
+                            throw new LambdaCalculusException("unexpected char '%s'",
+                                Character.toString(ch));
                         return variable();
                 }
 

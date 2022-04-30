@@ -34,4 +34,12 @@ public class TestLambdaCalculus {
         // 最後のxは2番目のラムダ式の束縛変数
         assertSame(second.variable, second.body);
     }
+
+    @Test
+    public void testParseSurrogatePair() {
+        Expression e = LambdaCalculus.parse("λ𩸽.𩸽");
+        Lambda l = (Lambda)e;
+        assertEquals(l.variable, l.body);
+        assertEquals("λ(𩸽 𩸽)", LambdaCalculus.parse("λ𩸽.𩸽").toString());
+    }
 }
