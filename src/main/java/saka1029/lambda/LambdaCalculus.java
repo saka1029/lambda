@@ -3,6 +3,7 @@ package saka1029.lambda;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import javax.lang.model.util.ElementScanner14;
 
 public class LambdaCalculus {
 
@@ -130,5 +131,42 @@ public class LambdaCalculus {
                 return e;
             }
         }.parse();
+    }
+
+    public static String toNormalizedString(Expression e) {
+        return new Object() {
+            StringBuilder sb = new StringBuilder();
+            Binder<BoundVariable, String> binder = new Binder<>();
+            int variableNumber = 0;
+
+            String normalize(Expression e) {
+                if (e instanceof Lambda lambda) {
+                    String variableName = "%" + (variableNumber++);
+                    sb.append("λ").append(variableName).append(".");
+                    try (Unbind u = binder.bind(lambda.variable, variableName)) {
+                        normalize(lambda.body);
+                    }
+                } else if (e instanceof Application application) {
+                    boolean headParen = application.head instanceof Lambda;
+                    boolean tailParen = !(application.tail instanceof Variable);
+                    if (headParen)
+                        sb.append("(");
+                    normalize(application.head);
+                    if (headParen)
+                        sb.append(")");
+                    sb.append(" ");
+                    if (tailParen)
+                        sb.append("(");
+                    normalize(application.tail);
+                    if (tailParen)
+                        sb.append(")");
+                } else if (e instanceof BoundVariable variable)
+                    sb.append(binder.get(variable));
+                else
+                    sb.append(e);
+                return sb.toString();
+            }
+
+        }.normalize(e);
     }
 }
