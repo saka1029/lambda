@@ -1,6 +1,7 @@
 package saka1029.lambda;
 
 import static saka1029.lambda.LambdaCalculus.*;
+import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import org.junit.Test;
@@ -62,12 +63,42 @@ public class TestLambdaCalculus {
         assertEquals("λ%0.λ%1.λ%2.%2", normalize(parse("λa.λa.λa.a")));
     }
 
+    static String nl(String s) {
+        return s.lines()
+            .map(line -> line + "\n")
+            .collect(Collectors.joining());
+    }
+
     @Test
     public void testTree() {
-        assertEquals("λa.b", string(parse("λa.b")));
-        assertEquals("λa.a", string(parse("λa.a")));
-        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.a b c")));
-        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.(a b c)")));
-        assertEquals("λa.λa.λa.a", string(parse("λa.λa.λa.a")));
+        assertEquals(
+              "lambda a\n"
+            + "  b\n", nl(tree(parse("λa.b"))));
+        assertEquals(
+              "lambda a\n"
+            + "  a\n", nl(tree(parse("λa.a"))));
+        assertEquals(
+              "lambda a\n"
+            + "  lambda b\n"
+            + "    lambda c\n"
+            + "      apply\n"
+            + "        apply\n"
+            + "          a\n"
+            + "          b\n"
+            + "        c\n", nl(tree(parse("λa b c.a b c"))));
+        assertEquals(
+              "lambda a\n"
+            + "  lambda b\n"
+            + "    lambda c\n"
+            + "      apply\n"
+            + "        apply\n"
+            + "          a\n"
+            + "          b\n"
+            + "        c\n", nl(tree(parse("λa b c.(a b c)"))));
+        assertEquals(
+              "lambda a\n"
+            + "  lambda a\n"
+            + "    lambda a\n"
+            + "      a\n", nl(tree(parse("λa.λa.λa.a"))));
     }
 }
