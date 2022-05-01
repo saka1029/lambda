@@ -1,8 +1,10 @@
 package saka1029.lambda;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 public class LambdaCalculus {
 
@@ -226,5 +228,28 @@ public class LambdaCalculus {
                 return sb.toString();
             }
         }.normalize(e);
+    }
+ 
+    public static String tree(Expression e) {
+        try (StringWriter sw = new StringWriter();
+            PrintWriter w = new PrintWriter(sw)) {
+            new Object() {
+                void tree(Expression e, int level) {
+                    w.print("  ".repeat(level));
+                    if (e instanceof Lambda l) {
+                        w.printf("lambda %s%n", l.variable);
+                        tree(l.body, level + 1);
+                    } else if (e instanceof Application a) {
+                        w.printf("apply%n");
+                        tree(a.head, level + 1);
+                        tree(a.tail, level + 1);
+                    } else
+                        w.println(e);
+                }
+            }.tree(e, 0);
+            return sw.toString();
+        } catch (IOException x) {
+            throw new RuntimeException(x);
+        }
     }
 }
