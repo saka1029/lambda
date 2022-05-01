@@ -72,33 +72,43 @@ public class TestLambdaCalculus {
     @Test
     public void testTree() {
         assertEquals(
-              "lambda a\n"
-            + "  b\n", nl(tree(parse("λa.b"))));
+            """
+            lambda a
+              b
+            """, nl(tree(parse("λa.b"))));
         assertEquals(
-              "lambda a\n"
-            + "  a\n", nl(tree(parse("λa.a"))));
+            """
+            lambda a
+              a
+            """, nl(tree(parse("λa.a"))));
         assertEquals(
-              "lambda a\n"
-            + "  lambda b\n"
-            + "    lambda c\n"
-            + "      apply\n"
-            + "        apply\n"
-            + "          a\n"
-            + "          b\n"
-            + "        c\n", nl(tree(parse("λa b c.a b c"))));
+            """
+            lambda a
+              lambda b
+                lambda c
+                  apply
+                    apply
+                      a
+                      b
+                    c
+            """, nl(tree(parse("λa b c.a b c"))));
         assertEquals(
-              "lambda a\n"
-            + "  lambda b\n"
-            + "    lambda c\n"
-            + "      apply\n"
-            + "        apply\n"
-            + "          a\n"
-            + "          b\n"
-            + "        c\n", nl(tree(parse("λa b c.(a b c)"))));
+            """
+            lambda a
+              lambda b
+                lambda c
+                  apply
+                    apply
+                      a
+                      b
+                    c
+            """, nl(tree(parse("λa b c.(a b c)"))));
         assertEquals(
-              "lambda a\n"
-            + "  lambda a\n"
-            + "    lambda a\n"
-            + "      a\n", nl(tree(parse("λa.λa.λa.a"))));
+            """
+            lambda a
+              lambda a
+                lambda a
+                  a
+            """, nl(tree(parse("λa.λa.λa.a"))));
     }
 }
