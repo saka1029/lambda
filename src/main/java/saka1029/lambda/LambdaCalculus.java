@@ -235,7 +235,7 @@ public class LambdaCalculus {
             PrintWriter w = new PrintWriter(sw)) {
             new Object() {
                 void tree(Expression e, int level) {
-                    w.print("  ".repeat(level));
+                    w.print("    ".repeat(level));
                     if (e instanceof Lambda l) {
                         w.printf("lambda %s%n", l.variable);
                         tree(l.body, level + 1);
