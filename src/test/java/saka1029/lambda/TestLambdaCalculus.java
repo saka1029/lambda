@@ -83,6 +83,16 @@ public class TestLambdaCalculus {
             """, nl(tree(parse("λa.a"))));
         assertEquals(
             """
+            lambda x
+              lambda y
+                apply
+                  apply
+                    x
+                    y
+                  x
+            """, nl(tree(parse("λx.λy.x y x"))));
+        assertEquals(
+            """
             lambda a
               lambda b
                 lambda c
