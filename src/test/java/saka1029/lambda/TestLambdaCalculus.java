@@ -52,6 +52,7 @@ public class TestLambdaCalculus {
         assertEquals("λa.λb.λc.a b c", string(parse("λa b c.a b c")));
         assertEquals("λa.λb.λc.a b c", string(parse("λa b c.(a b c)")));
         assertEquals("λa.λa.λa.a", string(parse("λa.λa.λa.a")));
+        assertEquals("λa.a (λb.a) b", string(parse("λa.((a λb.a) b)")));
     }
 
     @Test
