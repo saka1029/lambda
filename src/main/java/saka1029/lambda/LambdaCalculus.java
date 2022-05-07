@@ -252,4 +252,38 @@ public class LambdaCalculus {
             throw new RuntimeException(x);
         }
     }
+
+    public static Expression reduce(Expression e, Binder<FreeVariable, Expression> freeVariables) {
+        Binder<BoundVariable, Expression> boundVariables = new Binder<>();
+        return new Object() {
+            Expression reduce(Expression e) {
+                System.out.println("reduce: " + e);
+                if (e instanceof FreeVariable f) {
+                    Expression v = freeVariables.get(f);
+                    if (v == null)
+                        throw new LambdaCalculusException("unknown free varialbe: %s", f);
+                    return reduce(v);
+                } else if (e instanceof BoundVariable b) {
+                    Expression v = boundVariables.get(b);
+                    if (v == null)
+                        throw new LambdaCalculusException("unknown bound varialbe: %s", b);
+                    return v;
+                } else if (e instanceof Lambda l) {
+                    return l;
+                } else if (e instanceof Application a) {
+                    if (a.head instanceof Lambda l)
+                        try (Unbind u = boundVariables.bind(l.variable, a.tail)) {
+                            return reduce(l.body);
+                        }
+                    else
+                        return reduce(Application.of(reduce(a.head), reduce(a.tail)));
+                } else
+                    throw new LambdaCalculusException("unknown expression: %s", e);
+            }
+        }.reduce(e);
+    }
+
+    public static Expression reduce(Expression e) {
+        return reduce(e, new Binder<>());
+    }
 }
