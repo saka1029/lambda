@@ -10,8 +10,10 @@ public class TestReduce {
     @Test
     public void testFreeVariable() {
         Binder<FreeVariable, Expression> frees = new Binder<>();
-        try (Unbind u = frees.bind(FreeVariable.of("a"), parse("λx.x"))) {
+        Lambda lambda = (Lambda)parse("λx.x");
+        try (Unbind u = frees.bind(FreeVariable.of("a"), lambda)) {
             Lambda l = (Lambda)reduce(parse("a"), frees);
+            assertEquals(lambda, l);
             BoundVariable v = l.variable;
             assertEquals("x", v.name);
             assertEquals(v, l.body);

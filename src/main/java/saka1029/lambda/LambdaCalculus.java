@@ -257,7 +257,6 @@ public class LambdaCalculus {
         Binder<BoundVariable, Expression> boundVariables = new Binder<>();
         return new Object() {
             Expression reduce(Expression e) {
-                System.out.println("reduce: " + e);
                 if (e instanceof FreeVariable f) {
                     Expression v = freeVariables.get(f);
                     if (v == null)
