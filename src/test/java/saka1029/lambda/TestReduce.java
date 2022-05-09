@@ -46,5 +46,19 @@ public class TestReduce {
         // λy.y y = reduce(λx.x (λy.y y))
         assertEquals(yyy, reduce(apply(xx, yyy)));
     }
+
+    @Test
+    public void testChurchNumerals() {
+        Binder<FreeVariable, Expression> global = new Binder<>();
+        global.bind(free("0"), parse("λf x.x"));
+        global.bind(free("1"), parse("λf x.f x"));
+        global.bind(free("2"), parse("λf x.f (f x)"));
+        global.bind(free("succ"), parse("λn f x. f (n f x)"));
+        System.out.println(normalize(reduce(free("succ"), global)));
+        Expression r = reduce(apply(free("succ"), free("0")), global);
+        System.out.println(r);
+        System.out.println(tree(r));
+        System.out.println(normalize(r));
+    }
     
 }

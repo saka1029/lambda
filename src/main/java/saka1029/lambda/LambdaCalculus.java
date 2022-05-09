@@ -221,9 +221,12 @@ public class LambdaCalculus {
                     normalize(a.tail);
                     if (tailParen)
                         sb.append(")");
-                } else if (e instanceof BoundVariable variable)
-                    sb.append(binder.get(variable));
-                else
+                } else if (e instanceof BoundVariable v) {
+                    String x = binder.get(v);
+                    if (x == null)
+                        throw new LambdaCalculusException("unknown bound variable: %s", v);
+                    sb.append(x);
+                } else
                     sb.append(e);
                 return sb.toString();
             }
