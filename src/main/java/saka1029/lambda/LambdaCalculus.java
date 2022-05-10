@@ -195,7 +195,10 @@ public class LambdaCalculus {
     }
 
     public static int NORMALIZED_VAR_NAME_BASE = 'ⓐ';
-
+/**
+ * 
+ * ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ
+ */
     public static String normalize(Expression e) {
         return new Object() {
             StringBuilder sb = new StringBuilder();
