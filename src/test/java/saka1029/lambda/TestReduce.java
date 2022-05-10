@@ -47,6 +47,17 @@ public class TestReduce {
         assertEquals(yyy, reduce(apply(xx, yyy)));
     }
 
+    /**
+     * 0    := λf x.x
+     * 1    := λf x.f x
+     * 2    := λf x.f (f x)
+     * 3    := λf x.f (f (f x))
+     * SUCC := λn f x.f (n f x)
+     * 
+     * SUCC 0
+     * = (λn.λf.λx.f (n f x)) (λf.λx.x)
+     * = λf.λx.f (n f x) [n:=(λf.λx.x)]
+     */
     @Test
     public void testChurchNumerals() {
         Binder<FreeVariable, Expression> global = new Binder<>();
