@@ -194,6 +194,8 @@ public class LambdaCalculus {
         }.string(e);
     }
 
+    public static int NORMALIZED_VAR_NAME_BASE = 'ⓐ';
+
     public static String normalize(Expression e) {
         return new Object() {
             StringBuilder sb = new StringBuilder();
@@ -202,11 +204,13 @@ public class LambdaCalculus {
 
             String normalize(Expression e) {
                 if (e instanceof Lambda l) {
-                    String variableName = "%" + (variableNumber++);
+                    String variableName = String.valueOf(
+                        (char)(NORMALIZED_VAR_NAME_BASE + variableNumber++));
                     sb.append("λ").append(variableName).append(".");
                     try (Unbind u = binder.bind(l.variable, variableName)) {
                         normalize(l.body);
                     }
+                    --variableNumber;   // スコープを外れたら番号をリセットします。
                 } else if (e instanceof Application a) {
                     boolean headParen = a.head instanceof Lambda;
                     boolean tailParen = !(a.tail instanceof Variable);
