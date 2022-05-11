@@ -57,6 +57,18 @@ public class TestReduce {
      * SUCC 0
      * = (λn.λf.λx.f (n f x)) (λf.λx.x)
      * = λf.λx.f (n f x) [n:=(λf.λx.x)]
+     * = λf.λx.f ((λf.λx.x) f x) [n:=(λf.λx.x)]
+     * =         ===============
+     * =   ((λf.λx.x) f x) [n:=(λf.λx.x)]
+     * =   ((λa.λb.b) f x) [n:=(λf.λx.x)]
+     * =    ===========
+     * =     (λa.λb.b) f [n:=(λf.λx.x)]
+     * =     λb.b [a:=f, n:=(λf.λx.x)]
+     * =     λb.b [n:=(λf.λx.x)]
+     * =   (λb.b x) [n:=(λf.λx.x)]
+     * =   b [b:=x, n:=(λf.λx.x)]
+     * =   x [n:=(λf.λx.x)]
+     * = λf.λx.f x
      */
     @Test
     public void testChurchNumerals() {
