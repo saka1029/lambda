@@ -23,7 +23,7 @@ public class Lambda implements Expression {
             sb.append(" ").append(l.variable);
             b = l.body;
         }
-        sb.append(".").append(body);
+        sb.append(".").append(b);
         return sb.toString();
     }
 }

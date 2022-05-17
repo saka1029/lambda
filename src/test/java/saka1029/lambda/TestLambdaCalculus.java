@@ -10,27 +10,27 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseApplication() {
-        assertEquals("A(a b)", parse("a b").toString());
-        assertEquals("A(A(a b) c)", parse("a b c").toString());
+        assertEquals("a b", parse("a b").toString());
+        assertEquals("a b c", parse("a b c").toString());
     }
 
     @Test
     public void testParseLambda() {
-        assertEquals("λ(a b)", parse("λa.b").toString());
-        assertEquals("λ(a λ(b c))", parse("λa.λb.c").toString());
-        assertEquals("λ(a λ(b c))", parse("λa b.c").toString());
+        assertEquals("\\a.b", parse("\\a.b").toString());
+        assertEquals("\\a b.c", parse("\\a.\\b.c").toString());
+        assertEquals("\\a b.c", parse("\\a b.c").toString());
     }
 
     @Test
     public void testParseLambdaBackslash() {
-        assertEquals("λ(a b)", parse("\\a.b").toString());
-        assertEquals("λ(a λ(b c))", parse("\\a.\\b.c").toString());
-        assertEquals("λ(a λ(b c))", parse("\\a b.c").toString());
+        assertEquals("\\a.b", parse("\\a.b").toString());
+        assertEquals("\\a b.c", parse("\\a.\\b.c").toString());
+        assertEquals("\\a b.c", parse("\\a b.c").toString());
     }
 
     @Test
     public void testParseLambdaScope() {
-        Expression e = parse("λx.λx.x");
+        Expression e = parse("\\x.\\x.x");
         Lambda first = (Lambda)e;
         Lambda second = (Lambda)first.body;
         // 最後のxは2番目のラムダ式の束縛変数
@@ -39,30 +39,30 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseSurrogatePair() {
-        Expression e = parse("λ𩸽.𩸽");
+        Expression e = parse("\\𩸽.𩸽");
         Lambda l = (Lambda)e;
         assertEquals(l.variable, l.body);
-        assertEquals("λ(𩸽 𩸽)", parse("λ𩸽.𩸽").toString());
+        assertEquals("\\𩸽.𩸽", parse("\\𩸽.𩸽").toString());
     }
 
     @Test
     public void testString() {
-        assertEquals("λa.b", string(parse("λa.b")));
-        assertEquals("λa.a", string(parse("λa.a")));
-        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.a b c")));
-        assertEquals("λa.λb.λc.a b c", string(parse("λa b c.(a b c)")));
-        assertEquals("λa.λa.λa.a", string(parse("λa.λa.λa.a")));
-        assertEquals("λa.a (λb.a) b", string(parse("λa.((a λb.a) b)")));
+        assertEquals("\\a.b", string(parse("\\a.b")));
+        assertEquals("\\a.a", string(parse("\\a.a")));
+        assertEquals("\\a b c.a b c", string(parse("\\a b c.a b c")));
+        assertEquals("\\a b c.a b c", string(parse("\\a b c.(a b c)")));
+        assertEquals("\\a a a.a", string(parse("\\a.\\a.\\a.a")));
+        assertEquals("\\a.a (\\b.a) b", string(parse("\\a.((a \\b.a) b)")));
     }
 
     @Test
     public void testNormalize() {
-        assertEquals("λa.y", normalize(parse("λx.y")));
-        assertEquals("λa.a", normalize(parse("λx.x")));
-        assertEquals("λa.λb.λc.a b c", normalize(parse("λx y z.x y z")));
-        assertEquals("λa.λb.λc.a b c", normalize(parse("λx y z.(x y z)")));
-        assertEquals("λa.λb.λc.c", normalize(parse("λx.λx.λx.x")));
-        assertEquals("(λa.a) (λa.a)", normalize(parse("(λx.x)(λy.y)")));
+        assertEquals("\\a.y", normalize(parse("\\x.y")));
+        assertEquals("\\a.a", normalize(parse("\\x.x")));
+        assertEquals("\\a.\\b.\\c.a b c", normalize(parse("\\x y z.x y z")));
+        assertEquals("\\a.\\b.\\c.a b c", normalize(parse("\\x y z.(x y z)")));
+        assertEquals("\\a.\\b.\\c.c", normalize(parse("\\x.\\x.\\x.x")));
+        assertEquals("(\\a.a) (\\a.a)", normalize(parse("(\\x.x)(\\y.y)")));
     }
 
     static String nl(String s) {
@@ -77,12 +77,12 @@ public class TestLambdaCalculus {
             """
             lambda a
                 b
-            """, nl(tree(parse("λa.b"))));
+            """, nl(tree(parse("\\a.b"))));
         assertEquals(
             """
             lambda a
                 a
-            """, nl(tree(parse("λa.a"))));
+            """, nl(tree(parse("\\a.a"))));
         assertEquals(
             """
             lambda x
@@ -92,7 +92,7 @@ public class TestLambdaCalculus {
                             x
                             y
                         x
-            """, nl(tree(parse("λx.λy.x y x"))));
+            """, nl(tree(parse("\\x.\\y.x y x"))));
         assertEquals(
             """
             lambda a
@@ -103,7 +103,7 @@ public class TestLambdaCalculus {
                                 a
                                 b
                             c
-            """, nl(tree(parse("λa b c.a b c"))));
+            """, nl(tree(parse("\\a b c.a b c"))));
         assertEquals(
             """
             lambda a
@@ -114,13 +114,13 @@ public class TestLambdaCalculus {
                                 a
                                 b
                             c
-            """, nl(tree(parse("λa b c.(a b c)"))));
+            """, nl(tree(parse("\\a b c.(a b c)"))));
         assertEquals(
             """
             lambda a
                 lambda a
                     lambda a
                         a
-            """, nl(tree(parse("λa.λa.λa.a"))));
+            """, nl(tree(parse("\\a.\\a.\\a.a"))));
     }
 }
