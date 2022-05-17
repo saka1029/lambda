@@ -170,9 +170,15 @@ public class LambdaCalculus {
             StringBuilder sb = new StringBuilder();
 
             String string(Expression e) {
-                if (e instanceof Lambda lambda) {
-                    sb.append("\\").append(lambda.variable).append(".");
-                    string(lambda.body);
+                if (e instanceof Lambda l) {
+                    sb.append("\\").append(l.variable);
+                    Expression b = l.body;
+                    while (b instanceof Lambda c) {
+                        sb.append(" ").append(c.variable);
+                        b = c.body;
+                    }
+                    sb.append(".");
+                    string(b);
                 } else if (e instanceof Application a) {
                     boolean headParen = a.head instanceof Lambda;
                     boolean tailParen = !(a.tail instanceof Variable);

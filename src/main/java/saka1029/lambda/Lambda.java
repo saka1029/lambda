@@ -16,6 +16,14 @@ public class Lambda implements Expression {
 
     @Override
     public String toString() {
-        return "\\%s.%s".formatted(variable, body);
+        StringBuilder sb = new StringBuilder();
+        sb.append("\\").append(variable);
+        Expression b = body;
+        while (b instanceof Lambda l) {
+            sb.append(" ").append(l.variable);
+            b = l.body;
+        }
+        sb.append(".").append(body);
+        return sb.toString();
     }
 }
