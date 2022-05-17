@@ -171,7 +171,7 @@ public class LambdaCalculus {
 
             String string(Expression e) {
                 if (e instanceof Lambda lambda) {
-                    sb.append("λ").append(lambda.variable).append(".");
+                    sb.append("\\").append(lambda.variable).append(".");
                     string(lambda.body);
                 } else if (e instanceof Application a) {
                     boolean headParen = a.head instanceof Lambda;
@@ -194,7 +194,8 @@ public class LambdaCalculus {
         }.string(e);
     }
 
-    public static int NORMALIZED_VAR_NAME_BASE = 'ⓐ';
+    // public static int NORMALIZED_VAR_NAME_BASE = 'ⓐ';
+    public static int NORMALIZED_VAR_NAME_BASE = 'a';
 /**
  * 
  * ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ
@@ -209,7 +210,7 @@ public class LambdaCalculus {
                 if (e instanceof Lambda l) {
                     String variableName = String.valueOf(
                         (char)(NORMALIZED_VAR_NAME_BASE + variableNumber++));
-                    sb.append("λ").append(variableName).append(".");
+                    sb.append("\\").append(variableName).append(".");
                     try (Unbind u = binder.bind(l.variable, variableName)) {
                         normalize(l.body);
                     }
@@ -266,30 +267,39 @@ public class LambdaCalculus {
     public static Expression reduce(Expression e, Binder<FreeVariable, Expression> freeVariables) {
         Binder<BoundVariable, Expression> boundVariables = new Binder<>();
         return new Object() {
-            Expression reduce(Expression e) {
+
+            String indent(int n) {
+                return "  ".repeat(n);
+            }
+
+            Expression reduce(Expression e, int n) {
+                System.out.printf("%s< %s %s%n", indent(n), string(e), boundVariables);
+                Expression r;
                 if (e instanceof FreeVariable f) {
                     Expression v = freeVariables.get(f);
                     if (v == null)
                         throw new LambdaCalculusException("unknown free varialbe: %s", f);
-                    return reduce(v);
+                    r = reduce(v, n + 1);
                 } else if (e instanceof BoundVariable b) {
                     Expression v = boundVariables.get(b);
                     if (v == null)
                         throw new LambdaCalculusException("unknown bound varialbe: %s", b);
-                    return v;
+                    r = v;
                 } else if (e instanceof Lambda l) {
-                    return l;
+                    r = l;
                 } else if (e instanceof Application a) {
                     if (a.head instanceof Lambda l)
                         try (Unbind u = boundVariables.bind(l.variable, a.tail)) {
-                            return reduce(l.body);
+                            r = reduce(l.body, n + 1);
                         }
                     else
-                        return reduce(Application.of(reduce(a.head), reduce(a.tail)));
+                        r = reduce(Application.of(reduce(a.head, n + 1), reduce(a.tail, n + 1)), n + 1);
                 } else
                     throw new LambdaCalculusException("unknown expression: %s", e);
+                System.out.printf("%s> %s%n", indent(n), string(r));
+                return r;
             }
-        }.reduce(e);
+        }.reduce(e, 0);
     }
 
     public static Expression reduce(Expression e) {

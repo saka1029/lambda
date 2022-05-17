@@ -16,6 +16,6 @@ public class Lambda implements Expression {
 
     @Override
     public String toString() {
-        return "λ(%s %s)".formatted(variable, body);
+        return "\\%s.%s".formatted(variable, body);
     }
 }

@@ -13,8 +13,13 @@ public class Application implements Expression {
         return new Application(head, tail);
     }
 
+    static String paren(Expression e, boolean paren) {
+        return paren ? "(" + e + ")" : "" + e;
+    }
+
     @Override
     public String toString() {
-        return "A(%s %s)".formatted(head, tail);
+        return paren(head, head instanceof Lambda)
+            + " " + paren(tail, !(tail instanceof Variable));
     }
 }
