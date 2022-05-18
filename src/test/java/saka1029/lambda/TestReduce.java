@@ -44,7 +44,7 @@ public class TestReduce {
         BoundVariable y = local("y");
         Lambda yyy = lambda(y, apply(y, y));
         // λy.y y = reduce(λx.x (λy.y y))
-        assertEquals(yyy, reduce(apply(xx, yyy)));
+        assertEquals("\\y.y y", reduce(apply(xx, yyy)).toString());
     }
 
     /**
@@ -84,5 +84,4 @@ public class TestReduce {
         System.out.println(tree(r));
         System.out.println(normalize(r));
     }
-    
 }

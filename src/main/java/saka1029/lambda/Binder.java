@@ -12,7 +12,13 @@ public class Binder<K, V> {
     public Unbind bind(K key, V value) {
         stack.push(bind.get(key));
         bind.put(key, value);
-        return () -> bind.put(key, stack.pop());
+        return () -> {
+        	V prev = stack.pop();
+        	if (prev == null)
+        		bind.remove(key);
+        	else
+        		bind.put(key, prev);
+        };
     }
 
     public V get(K key) {
