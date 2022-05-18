@@ -16,9 +16,9 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseLambda() {
-        assertEquals("\\a.b", parse("\\a.b").toString());
-        assertEquals("\\a b.c", parse("\\a.\\b.c").toString());
-        assertEquals("\\a b.c", parse("\\a b.c").toString());
+        assertEquals("\\a.b", parse("λa.b").toString());
+        assertEquals("\\a b.c", parse("λa.λb.c").toString());
+        assertEquals("\\a b.c", parse("λa b.c").toString());
     }
 
     @Test
@@ -46,13 +46,13 @@ public class TestLambdaCalculus {
     }
 
     @Test
-    public void testString() {
-        assertEquals("\\a.b", string(parse("\\a.b")));
-        assertEquals("\\a.a", string(parse("\\a.a")));
-        assertEquals("\\a b c.a b c", string(parse("\\a b c.a b c")));
-        assertEquals("\\a b c.a b c", string(parse("\\a b c.(a b c)")));
-        assertEquals("\\a a a.a", string(parse("\\a.\\a.\\a.a")));
-        assertEquals("\\a.a (\\b.a) b", string(parse("\\a.((a \\b.a) b)")));
+    public void testToString() {
+        assertEquals("\\a.b", parse("\\a.b").toString());
+        assertEquals("\\a.a", parse("\\a.a").toString());
+        assertEquals("\\a b c.a b c", parse("\\a b c.a b c").toString());
+        assertEquals("\\a b c.a b c", parse("\\a b c.(a b c)").toString());
+        assertEquals("\\a a a.a", parse("\\a.\\a.\\a.a").toString());
+        assertEquals("\\a.a (\\b.a) b", parse("\\a.((a \\b.a) b)").toString());
     }
 
     @Test

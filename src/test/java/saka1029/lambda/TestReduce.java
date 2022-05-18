@@ -30,7 +30,7 @@ public class TestReduce {
         Lambda lambda = lambda(x, x);
         FreeVariable a = free("a");
         try (Unbind u = frees.bind(a, lambda)) {
-            assertEquals(lambda, reduce(a, frees));
+            assertEquals("\\x.x", reduce(a, frees).toString());
         }
         assertNull(frees.get(a));
     }
@@ -77,6 +77,7 @@ public class TestReduce {
         global.bind(free("1"), parse("λf x.f x"));
         global.bind(free("2"), parse("λf x.f (f x)"));
         global.bind(free("succ"), parse("λn f x. f (n f x)"));
+        System.out.println(tree(global.get(free("succ"))));
         System.out.println(normalize(reduce(free("succ"), global)));
         Expression r = reduce(apply(free("succ"), free("0")), global);
         System.out.println(r);
