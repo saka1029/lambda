@@ -1,6 +1,8 @@
 package saka1029.lambda;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -13,7 +15,7 @@ public class TestBind {
             try (Unbind b = binder.bind("one", 1)) {
                 assertEquals((Integer) 0, binder.get("zero"));
                 assertEquals((Integer) 1, binder.get("one"));
-                assertEquals(null, binder.get("three"));
+				assertNull(binder.get("three"));
                 try (Unbind c = binder.bind("zero", 1000)) {
                     assertEquals((Integer) 1000, binder.get("zero"));
                 }

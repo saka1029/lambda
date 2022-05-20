@@ -3,15 +3,17 @@ package saka1029.lambda;
 public class Lambda implements Expression {
 
     public final BoundVariable variable;
+    public final int refCount;
     public final Expression body;
 
-    private Lambda(BoundVariable variable, Expression body) {
+    private Lambda(BoundVariable variable, Expression body, int refCount) {
         this.variable = variable;
+        this.refCount = refCount;
         this.body = body;
     }
 
-    public static Lambda of(BoundVariable variable, Expression body) {
-        return new Lambda(variable, body);
+    public static Lambda of(BoundVariable variable, Expression body, int refCount) {
+        return new Lambda(variable, body, refCount);
     }
 
     @Override

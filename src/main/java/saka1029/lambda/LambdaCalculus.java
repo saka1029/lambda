@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LambdaCalculus {
 
@@ -101,7 +103,7 @@ public class LambdaCalculus {
                         body = expression();
                     } else
                         body = lambda(); // lambda cascading
-                    return Lambda.of(variable, body);
+                    return Lambda.of(variable, body, binder.refCount(name));
                 }
             }
 
@@ -233,7 +235,7 @@ public class LambdaCalculus {
         }
     }
 
-    public static Expression reduce(Expression e, Binder<FreeVariable, Expression> freeVariables) {
+    public static Expression reduce(Expression e, Map<FreeVariable, Expression> freeVariables) {
         var obj = new Object() {
             Binder<BoundVariable, Expression> boundVariables = new Binder<>();
 
@@ -241,6 +243,28 @@ public class LambdaCalculus {
 
             String indent(int n) {
                 return "  ".repeat(n);
+            }
+
+            Expression replace(Expression e) {
+            	Expression r;
+            	if (e instanceof FreeVariable f) {
+            		Expression v = freeVariables.get(f);
+            		r = v == null ? f : v;
+            	} else if (e instanceof BoundVariable b) {
+            		Expression v = boundVariables.get(b);
+            		if (v == null)
+                        throw new LambdaCalculusException("undefined bound varialbe %s in %s", b, boundVariables);
+            		r = v;
+            	} else if (e instanceof Lambda l) {
+            		BoundVariable n = BoundVariable.of(l.variable.name);
+            		try (Unbind u = boundVariables.bind(l.variable, n)) {
+            			r = Lambda.of(n, replace(l.body), boundVariables.refCount(n));
+            		}
+            	} else if (e instanceof Application a) {
+            		r = Application.of(replace(a.head), replace(a.tail));
+            	} else
+                    throw new LambdaCalculusException("unknown expression: %s", e);
+            	return r;
             }
 
             Expression reduce(Expression e) {
@@ -253,12 +277,12 @@ public class LambdaCalculus {
                 } else if (e instanceof BoundVariable b) {
                     Expression v = boundVariables.get(b);
                     if (v == null)
-                        throw new LambdaCalculusException("unknown bound varialbe: %s", b);
+                        throw new LambdaCalculusException("undefined bound varialbe %s in %s", b, boundVariables);
                     r = v;
                 } else if (e instanceof Lambda l) {
                     BoundVariable v = BoundVariable.of(l.variable.name);
                     try (Unbind u = boundVariables.bind(l.variable, v)) {
-                        r = Lambda.of(v, reduce(l.body));
+                        r = Lambda.of(v, reduce(l.body), boundVariables.refCount(l.variable));
                     }
                 } else if (e instanceof Application a) {
                 	Expression h = reduce(a.head);
@@ -280,6 +304,6 @@ public class LambdaCalculus {
     }
 
     public static Expression reduce(Expression e) {
-        return reduce(e, new Binder<>());
+        return reduce(e, new HashMap<>());
     }
 }

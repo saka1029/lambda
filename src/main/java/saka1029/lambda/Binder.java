@@ -5,15 +5,32 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.swing.plaf.basic.BasicFormattedTextFieldUI;
+
 public class Binder<K, V> {
-    final Deque<V> stack = new LinkedList<>();
-    final Map<K, V> bind = new HashMap<>();
+
+	private static class Value<V> {
+		final V value;
+		int refCount = 0;
+		
+		Value(V value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return "%s(%s)".formatted(value, refCount);
+		}
+	}
+
+    final Deque<Value<V>> stack = new LinkedList<>();
+    final Map<K, Value<V>> bind = new HashMap<>();
 
     public Unbind bind(K key, V value) {
         stack.push(bind.get(key));
-        bind.put(key, value);
+        bind.put(key, new Value<>(value));
         return () -> {
-        	V prev = stack.pop();
+        	Value<V> prev = stack.pop();
         	if (prev == null)
         		bind.remove(key);
         	else
@@ -21,8 +38,19 @@ public class Binder<K, V> {
         };
     }
 
+    public int refCount(K key) {
+        Value<V> value = bind.get(key);
+        if (value == null)
+			throw new NullPointerException("undefined key " + key + " in " + this);
+        return value.refCount;
+    }
+
     public V get(K key) {
-        return bind.get(key);
+        Value<V> value = bind.get(key);
+        if (value == null)
+        	return null;
+        ++value.refCount;
+        return value.value;
     }
 
     @Override
