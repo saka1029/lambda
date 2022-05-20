@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import javax.swing.plaf.basic.BasicFormattedTextFieldUI;
-
 public class Binder<K, V> {
 
 	private static class Value<V> {

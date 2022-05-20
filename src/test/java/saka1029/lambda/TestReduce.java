@@ -1,7 +1,6 @@
 package saka1029.lambda;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import static saka1029.lambda.LambdaCalculus.*;
 
