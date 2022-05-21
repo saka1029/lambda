@@ -21,6 +21,20 @@ public class TestLambdaCalculus {
         assertEquals("\\a b.c", parse("λa b.c").toString());
     }
 
+    static Lambda asLambda(Expression e) {
+    	return (Lambda)e;
+    }
+
+    @Test
+    public void testParseLambdaRefCount() {
+        assertEquals(1, asLambda(parse("λa.a")).refCount);
+        assertEquals(0, asLambda(parse("λa.b")).refCount);
+        Expression e = parse("λa a a.a");
+        assertEquals(0, asLambda(e).refCount);
+        assertEquals(0, asLambda(asLambda(e).body).refCount);
+        assertEquals(1, asLambda(asLambda(asLambda(e).body).body).refCount);
+    }
+
     @Test
     public void testParseLambdaBackslash() {
         assertEquals("\\a.b", parse("\\a.b").toString());
