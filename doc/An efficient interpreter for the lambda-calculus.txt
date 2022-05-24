@@ -413,114 +413,87 @@ appear in the final version of our reduction algorithm. Second, the more efficie
 version listed below is incorrect in this framework, since it does not check for the
 well-formedness of the entire term, if the last version of the data structure
 manipulating primitives is used.
+
 (DEF IS-FREE-IN
-(LAMBDA (VAR TERM)
-(IF (IS-VARIABLE
-(EQ (NAME-OF
+    (LAMBDA (VAR TERM)
+        (IF (IS-VARIABLE TERM)
+            (EQ (NAME-OF VAR) (NAME-OF TERM))
+            (IF (IS-APPLICATION TERM)
+                (OR (IS-FREE-IN VAR (FUNCTION-OF TERM))
+                    (IS-FREE-IN VAR (ARGUMENT-OF TERM)))
+                (IF (IS-LAMBDA-ABSTRACTION TERM)
+                    (IF (EQ (NAME-OF (BINDER-OF TERM)) (NAME-OF VAR))
+                        NIL
+                        (IS-FREE-IN VAR (FORM-OF TERM)))
+                    (ERROR...))))
 
-TERM)
-VAR) (NAME-OF
-
-(IF (IS-APPLICATION
-(OR (IS-FREE-IN
-(IS-FREE-IN
-
-TERM))
-
-TERM)
-VAR (FUNCTION-OF
-VAR (ARGUMENT-OF
-
-TERM))
-TERM)))
-
-(IF (IS-LAMBDA-ABSTRACTION
-TERM)
-(IF (EQ (NAME-OF (BINDER-OF TERM))
-(NAME-OF VAR))
-NIL
-(IS-FREE-IN VAR (FORM-OF TERM)))
-(ERROR...))))
 The notion offree substitution of a term for all the free occurrences of a variable in
 a host term is defined by means of the function FREE-SUBSTITUTE.
 This kind of
 substitution is called “free” because no free occurrence of a variable in the term to be
 
-LAMBDA-CALCULUS
+LAMBDA-CALCULUS INTERPRETER
 
 391
 
-INTERPRETER
 
 substituted becomes bound by any binder of the resulting term. This is the characterizing property of the so called lexical binding, as opposed to dynamic binding
 (sometimes they are also called “static scoping” and “dynamic scoping”, respectively). For an informal introduction to these concepts see [24, 271. For their formal
 treatment in applicative languages see [ 121.
 In the code for FREE-SUBSTITUTE we use the construct
+
 (LET ((varl j&ml)
-.. .
-(varn firmn))
-body)
+        ...
+    (varn firmn))
+    body)
+
 which is computationally equivalent to (and may be macro expanded to)
-((LAMBDA
 
-(uarl . .. varn) body) form 1 ... formn).
+((LAMBDA (uarl . .. varn) body) form 1 ... formn).
 
-The definition of FREE-SUBSTITUTE
+The definition of FREE-SUBSTITUTE is the following.
+
 (DEF FREE-SUBSTITUTE
-(LAMBDA (TERM VARIABLE
-
-is the following.
-HOST-TERM)
-
-(IF (IS-VARIABLE HOST-TERM)
-(IF (EQ (NAME-OF HOST-TERM)
-(NAME-OF VARIABLE))
-TERM
-HOST-TERM)
-(IF (IS-APPLICATION
-HOST-TERM)
-(MK-APPLICATION
-(FREE-SUBSTITUTE
-TERM VARIABLE (FUNCTION-OF
-(FREE-SUBSTITUTE
-TERM VARIABLE (ARGUMENT-OF
-
-HOST-TERM))
-HOST-TERM)))
-
-(IF (IS-LAMBDA-ABSTRACTION
-HOST-TERM)
-(IF (EQ (NAME-OF (BINDER-OF HOST-TERM))
-(NAME-OF VARIABLE))
-HOST-TERM
-(IF (NOT (IS-FREE-IN
-(BINDER-OF HOST-TERM) TERM))
-(MK-LAMBDA-ABSTRACTION
-(BINDER-OF HOST-TERM)
-(FREE-SUBSTITUTE
-TERM VARIABLE (FORM-OF HOST-TERM)))
-(LET ((NEW-VARIABLE
-(GENERATE-NEW-VARIABLE-FREE-IN
-(MK-APPLICATION
-TERM (FORM-OF HOST-TERM)))))
+    (LAMBDA (TERM VARIABLE HOST-TERM)
+        (IF (IS-VARIABLE HOST-TERM)
+            (IF (EQ (NAME-OF HOST-TERM)
+                (NAME-OF VARIABLE))
+                TERM
+                HOST-TERM)
+            (IF (IS-APPLICATION HOST-TERM)
+                (MK-APPLICATION
+                    (FREE-SUBSTITUTE
+                        TERM VARIABLE (FUNCTION-OF HOST-TERM))
+                    (FREE-SUBSTITUTE
+                        TERM VARIABLE (ARGUMENT-OF HOST-TERM)))
+                (IF (IS-LAMBDA-ABSTRACTION HOST-TERM)
+                    (IF (EQ (NAME-OF (BINDER-OF HOST-TERM))
+                            (NAME-OF VARIABLE))
+                        HOST-TERM
+                        (IF (NOT (IS-FREE-IN
+                                (BINDER-OF HOST-TERM) TERM))
+                (MK-LAMBDA-ABSTRACTION
+                    (BINDER-OF HOST-TERM)
+                    (FREE-SUBSTITUTE
+                        TERM VARIABLE (FORM-OF HOST-TERM)))
+                (LET ((NEW-VARIABLE
+                        (GENERATE-NEW-VARIABLE-FREE-IN
+                            (MK-APPLICATION
+                                TERM (FORM-OF HOST-TERM)))))
 
 392
 
-AIELLO
+AIELLO AND PRINI
 
-AND
+                        (MK-LAMBDA-ABSTRACTION
+                            NEW-VARIABLE
+                            (FREE-SUBSTITUTE TERM VARIABLE
+                                (FREE-SUBSTITUTE
+                                    NEW-VARIABLE
+                                    (BINDER-OF HOST-TERM)
+                                    (FORM-OF HOST-TERM)))))))
+                    (ERROR...))))))
 
-PRINI
-
-(MK-LAMBDA-ABSTRACTION
-NEW-VARIABLE
-(FREE-SUBSTITUTE TERM VARIABLE
-(FREE-SUBSTITUTE
-NEW-VARIABLE
-(BINDER-OF HOST-TERM)
-(FORM-OF HOST-TERM)))))))
-
-(ERROR-))))))
 The code for FREE-SUBSTITUTE
 needs some comments. In the first two cases,
 i.e., when the host term is a variable or an application, it is quite straightforward. If
