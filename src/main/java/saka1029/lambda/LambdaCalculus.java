@@ -103,7 +103,7 @@ public class LambdaCalculus {
                     throw error("variable expected but '%s'", Character.toString(ch));
                 String name = variableName();
                 BoundVariable variable = BoundVariable.of(name);
-                try (Unbind u = binder.bind(name, variable)) {
+                return binder.bind(name, variable, () -> {
                     Expression body;
                     if (ch == '.') {
                         get(); // skip '.'
@@ -111,7 +111,7 @@ public class LambdaCalculus {
                     } else
                         body = lambda(); // lambda cascading
                     return Lambda.of(variable, body, binder.refCount(name));
-                }
+                });
             }
 
             Expression paren() {
@@ -199,9 +199,8 @@ public class LambdaCalculus {
                     String variableName = String.valueOf(
                         (char)(NORMALIZED_VAR_NAME_BASE + variableNumber++));
                     sb.append("\\").append(variableName).append(".");
-                    try (Unbind u = binder.bind(l.variable, variableName)) {
-                        normalize(l.body);
-                    }
+                    binder.bind(l.variable, variableName,
+                    	() -> normalize(l.body));
                     --variableNumber;   // スコープを外れたら番号をリセットします。
                 } else if (e instanceof Application a) {
                 	paren(a.head, a.head instanceof Lambda);
@@ -264,9 +263,8 @@ public class LambdaCalculus {
             		r = v;
             	} else if (e instanceof Lambda l) {
             		BoundVariable n = BoundVariable.of(l.variable.name);
-            		try (Unbind u = boundVariables.bind(l.variable, n)) {
-            			r = Lambda.of(n, replace(l.body), boundVariables.refCount(n));
-            		}
+            		r = boundVariables.bind(l.variable, n,
+            			() -> Lambda.of(n, replace(l.body), boundVariables.refCount(n)));
             	} else if (e instanceof Application a) {
             		r = Application.of(replace(a.head), replace(a.tail));
             	} else
@@ -288,16 +286,14 @@ public class LambdaCalculus {
                     r = v;
                 } else if (e instanceof Lambda l) {
                     BoundVariable v = BoundVariable.of(l.variable.name);
-                    try (Unbind u = boundVariables.bind(l.variable, v)) {
-                        r = Lambda.of(v, reduce(l.body), boundVariables.refCount(l.variable));
-                    }
+                    r = boundVariables.bind(l.variable, v,
+                    	() -> Lambda.of(v, reduce(l.body), boundVariables.refCount(l.variable)));
                 } else if (e instanceof Application a) {
                 	Expression h = reduce(a.head);
                 	Expression t = reduce(a.tail);
                 	if (h instanceof Lambda l)
-                		try (Unbind u = boundVariables.bind(l.variable,  t)) {
-							r = reduce(l.body);
-                		}
+                		r = boundVariables.bind(l.variable, t,
+                			() -> reduce(l.body));
                 	else
                 		r = Application.of(h, t);
                 } else

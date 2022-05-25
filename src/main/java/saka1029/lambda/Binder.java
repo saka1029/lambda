@@ -1,9 +1,8 @@
 package saka1029.lambda;
 
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class Binder<K, V> {
 
@@ -21,19 +20,17 @@ public class Binder<K, V> {
 		}
 	}
 
-    final Deque<Value<V>> stack = new LinkedList<>();
     final Map<K, Value<V>> bind = new HashMap<>();
 
-    public Unbind bind(K key, V value) {
-        stack.push(bind.get(key));
-        bind.put(key, new Value<>(value));
-        return () -> {
-        	Value<V> prev = stack.pop();
-        	if (prev == null)
-        		bind.remove(key);
-        	else
-        		bind.put(key, prev);
-        };
+    public <T> T bind(K key, V value, Supplier<T> bindProc) {
+    	Value<V> old = bind.get(key);
+		bind.put(key, new Value<>(value));
+    	T result = bindProc.get();
+    	if (old != null)
+    		bind.put(key, old);
+    	else
+    		bind.remove(key);
+    	return result;
     }
 
     public int refCount(K key) {
