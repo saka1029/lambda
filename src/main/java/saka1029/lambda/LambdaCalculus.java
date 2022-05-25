@@ -12,6 +12,14 @@ public class LambdaCalculus {
 
     private LambdaCalculus() {}
 
+    public static LambdaCalculusException error(String format, Object... args) {
+    	return new LambdaCalculusException(format, args);
+    }
+
+    public static LambdaCalculusException error(Throwable cause) {
+    	return new LambdaCalculusException(cause);
+    }
+
     public static Expression parse(String source) {
         return parse(new StringReader(source));
     }
@@ -57,7 +65,7 @@ public class LambdaCalculus {
                 try {
                     return ch = cpreader.read();
                 } catch (IOException e) {
-                    throw new LambdaCalculusException(e);
+                    throw error(e);
                 }
             }
 
@@ -92,8 +100,7 @@ public class LambdaCalculus {
             Lambda lambda() {
                 spaces();
                 if (!isVariable(ch))
-                    throw new LambdaCalculusException("variable expected but '%s'",
-                        Character.toString(ch));
+                    throw error("variable expected but '%s'", Character.toString(ch));
                 String name = variableName();
                 BoundVariable variable = BoundVariable.of(name);
                 try (Unbind u = binder.bind(name, variable)) {
@@ -112,7 +119,7 @@ public class LambdaCalculus {
                 Expression e = expression();
                 spaces(); // skip spaces before ')'
                 if (ch != ')')
-                    throw new LambdaCalculusException("')' expected");
+                    throw error("')' expected");
                 get(); // skip ')'
                 return e;
             }
@@ -130,7 +137,7 @@ public class LambdaCalculus {
                 spaces();
                 switch (ch) {
                     case -1:
-                        throw new LambdaCalculusException("unexpected EOS");
+                        throw error("unexpected EOS");
                     case 'λ':
                     case '\\':
                         get(); // skip 'λ' or '\\'
@@ -140,7 +147,7 @@ public class LambdaCalculus {
                         return paren();
                     default:
                         if (!isVariable(ch))
-                            throw new LambdaCalculusException("unexpected char '%s'",
+                            throw error("unexpected char '%s'",
                                 Character.toString(ch));
                         return variable();
                 }
@@ -161,7 +168,7 @@ public class LambdaCalculus {
             Expression parse() {
                 Expression e = expression();
                 if (ch != -1)
-                    throw new LambdaCalculusException("extra string");
+                    throw error("extra string");
                 return e;
             }
         }.parse();
@@ -203,7 +210,7 @@ public class LambdaCalculus {
                 } else if (e instanceof BoundVariable v) {
                     String x = binder.get(v);
                     if (x == null)
-                        throw new LambdaCalculusException("unknown bound variable: %s", v);
+                        throw error("unknown bound variable: %s", v);
                     sb.append(x);
                 } else
                     sb.append(e);
@@ -253,7 +260,7 @@ public class LambdaCalculus {
             	} else if (e instanceof BoundVariable b) {
             		Expression v = boundVariables.get(b);
             		if (v == null)
-                        throw new LambdaCalculusException("undefined bound varialbe %s in %s", b, boundVariables);
+                        throw error("undefined bound varialbe %s in %s", b, boundVariables);
             		r = v;
             	} else if (e instanceof Lambda l) {
             		BoundVariable n = BoundVariable.of(l.variable.name);
@@ -263,7 +270,7 @@ public class LambdaCalculus {
             	} else if (e instanceof Application a) {
             		r = Application.of(replace(a.head), replace(a.tail));
             	} else
-                    throw new LambdaCalculusException("unknown expression: %s", e);
+                    throw error("unknown expression: %s", e);
             	return r;
             }
 
@@ -277,7 +284,7 @@ public class LambdaCalculus {
                 } else if (e instanceof BoundVariable b) {
                     Expression v = boundVariables.get(b);
                     if (v == null)
-                        throw new LambdaCalculusException("undefined bound varialbe %s in %s", b, boundVariables);
+                        throw error("undefined bound varialbe %s in %s", b, boundVariables);
                     r = v;
                 } else if (e instanceof Lambda l) {
                     BoundVariable v = BoundVariable.of(l.variable.name);
@@ -294,7 +301,7 @@ public class LambdaCalculus {
                 	else
                 		r = Application.of(h, t);
                 } else
-                    throw new LambdaCalculusException("unknown expression: %s", e);
+                    throw error("unknown expression: %s", e);
                 --n;
                 System.out.printf("%s> %s%n", indent(n), r);
                 return r;
