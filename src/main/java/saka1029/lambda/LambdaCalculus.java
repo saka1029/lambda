@@ -241,9 +241,9 @@ public class LambdaCalculus {
         }
     }
 
-    public static Expression reduce(Expression e, Map<FreeVariable, Expression> freeVariables) {
+    public static Expression reduce(Expression e, Map<FreeVariable, Expression> context) {
         var obj = new Object() {
-            Binder<BoundVariable, Expression> boundVariables = new Binder<>();
+            Binder<BoundVariable, Expression> binding = new Binder<>();
 
             int n = 0;
 
@@ -254,17 +254,15 @@ public class LambdaCalculus {
             Expression replace(Expression e) {
             	Expression r;
             	if (e instanceof FreeVariable f) {
-            		Expression v = freeVariables.get(f);
+            		Expression v = context.get(f);
             		r = v == null ? f : v;
             	} else if (e instanceof BoundVariable b) {
-            		Expression v = boundVariables.get(b);
-            		if (v == null)
-                        throw error("undefined bound varialbe %s in %s", b, boundVariables);
-            		r = v;
+            		Expression v = binding.get(b);
+            		r = v == null ? b : v;
             	} else if (e instanceof Lambda l) {
             		BoundVariable n = BoundVariable.of(l.variable.name);
-            		r = boundVariables.bind(l.variable, n,
-            			() -> Lambda.of(n, replace(l.body), boundVariables.refCount(n)));
+            		r = binding.bind(l.variable, n,
+            			() -> Lambda.of(n, replace(l.body), binding.refCount(n)));
             	} else if (e instanceof Application a) {
             		r = Application.of(replace(a.head), replace(a.tail));
             	} else
@@ -273,33 +271,41 @@ public class LambdaCalculus {
             }
 
             Expression reduce(Expression e) {
-                System.out.printf("%s< %s %s%n", indent(n), e, boundVariables);
+//                System.out.printf("%s< %s %s%n", indent(n), e, binding);
                 ++n;
                 Expression r;
                 if (e instanceof FreeVariable f) {
-                    Expression v = freeVariables.get(f);
-                    return v == null ? f : reduce(v);
+                    Expression v = context.get(f);
+                    r = v == null ? f : v;
                 } else if (e instanceof BoundVariable b) {
-                    Expression v = boundVariables.get(b);
-                    if (v == null)
-                        throw error("undefined bound varialbe %s in %s", b, boundVariables);
-                    r = v;
+                    Expression v = binding.get(b);
+                    r = v == null ? b : v;
                 } else if (e instanceof Lambda l) {
-                    BoundVariable v = BoundVariable.of(l.variable.name);
-                    r = boundVariables.bind(l.variable, v,
-                    	() -> Lambda.of(v, reduce(l.body), boundVariables.refCount(l.variable)));
+                	if (l.refCount == 0)
+                		// η-変換 (eta-conversion)
+                		r = reduce(l.body);	
+                	else {
+                		// α-変換 (alpha-conversion)
+                		BoundVariable oldVar = l.variable;
+                        BoundVariable newVar = BoundVariable.of(l.variable.name);
+                        r = binding.bind(oldVar, newVar,
+                            () -> {
+                            	Expression newBody = reduce(l.body);
+                            	return Lambda.of(newVar, newBody, binding.refCount(oldVar));
+                            });
+                	}
                 } else if (e instanceof Application a) {
                 	Expression h = reduce(a.head);
                 	Expression t = reduce(a.tail);
                 	if (h instanceof Lambda l)
-                		r = boundVariables.bind(l.variable, t,
-                			() -> reduce(l.body));
+                		// β-簡約 (beta-conversion)
+                		r = binding.bind(l.variable, t, () -> reduce(l.body));
                 	else
                 		r = Application.of(h, t);
                 } else
                     throw error("unknown expression: %s", e);
                 --n;
-                System.out.printf("%s> %s%n", indent(n), r);
+//                System.out.printf("%s> %s%n", indent(n), r);
                 return r;
             }
         };
