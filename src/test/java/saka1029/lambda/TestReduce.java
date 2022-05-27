@@ -17,12 +17,12 @@ public class TestReduce {
     public void testFreeVariable() {
         Map<FreeVariable, Expression> frees = new HashMap<>();
         frees.put(free("a"), parse("\\x.x"));
-		assertEquals("\\x.x", reduce(parse("a"), frees).toString());
+		assertEquals("λx.x", reduce(parse("a"), frees).toString());
     }
 
     @Test
     public void testApplication() {
-        assertEquals("\\y.y y", reduce(parse("(\\x.x) \\y.y y")).toString());
+        assertEquals("λy.y y", reduce(parse("(\\x.x) \\y.y y")).toString());
     }
 
     /**
