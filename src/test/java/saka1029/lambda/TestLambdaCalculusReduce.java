@@ -42,6 +42,7 @@ public class TestLambdaCalculusReduce {
 		equals(context, "1", "SUCC 0");
 		equals(context, "2", "SUCC 1");
 		equals(context, "2", "SUCC (SUCC 0)");
+		equals(context, "3", "SUCC (SUCC 1)");
 		define(context, "PLUS", "λm n f x.m f (n f x)");
 		equals(context, "1", "PLUS 0 1");
 		equals(context, "2", "PLUS 1 1");

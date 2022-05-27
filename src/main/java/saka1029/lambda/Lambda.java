@@ -1,6 +1,6 @@
 package saka1029.lambda;
 
-public class Lambda implements Expression {
+public class Lambda extends Expression {
 
     public final BoundVariable variable;
     public final int refCount;
@@ -15,17 +15,20 @@ public class Lambda implements Expression {
     public static Lambda of(BoundVariable variable, Expression body, int refCount) {
         return new Lambda(variable, body, refCount);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\\").append(variable);
-        Expression b = body;
-        while (b instanceof Lambda l) {
-            sb.append(" ").append(l.variable);
-            b = l.body;
-        }
-        sb.append(".").append(b);
-        return sb.toString();
+    
+    /**
+     * η変換可能であれば、その結果を返します。
+     * 不可能な場合はnullを返します。
+     * 
+     * η変換は2つの関数が全ての引数に対して常に同じ値を返すようなとき、互いに同値であるとみなすという概念である。
+     * <code>
+     * λV.E V →η E
+     * </code>
+     * ただし、EにVが自由出現しないときに限る。
+     */
+    public Expression etaConversion() {
+    	if (refCount == 1 && body instanceof Application a && a.tail.equals(variable))
+    		return a.head;
+    	return null;
     }
 }

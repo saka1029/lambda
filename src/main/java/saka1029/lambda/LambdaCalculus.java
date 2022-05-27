@@ -173,6 +173,53 @@ public class LambdaCalculus {
             }
         }.parse();
     }
+    
+    public static String stringDetail(Expression e) {
+    	return string(e, true);
+    }
+
+    public static String string(Expression e) {
+    	return string(e, false);
+    }
+
+    public static String string(Expression e, boolean detailBoundVariable) {
+		StringBuilder sb = new StringBuilder();
+    	new Object() {
+
+            void paren(Expression e, boolean paren) {
+            	if (paren)
+            		sb.append("(");
+            	process(e);
+            	if (paren)
+            		sb.append(")");
+            }
+
+            void process(Expression e) {
+    			if (e instanceof FreeVariable f)
+					sb.append(f.name);
+    			else if (e instanceof BoundVariable b) {
+					sb.append(b.name);
+					if (detailBoundVariable)
+						sb.append("_").append(b.id);
+    			} else if (e instanceof Lambda l) {
+    				String sep = "λ";
+    				Expression body = l;
+    				for ( ; body instanceof Lambda ll; body = ll.body, sep = " ") {
+    					sb.append(sep);
+    					process(ll.variable);
+    				}
+			        sb.append(".");
+			        process(body);
+    			} else if (e instanceof Application a) {
+                	paren(a.head, a.head instanceof Lambda);
+                    sb.append(" ");
+                	paren(a.tail, !(a.tail instanceof Variable));
+    			} else
+    				throw error("unknown expression: %s", e);
+    		}
+    	}.process(e);
+    	return sb.toString();
+    }
 
     // public static int NORMALIZED_VAR_NAME_BASE = 'ⓐ';
     public static int NORMALIZED_VAR_NAME_BASE = 'a';
@@ -181,41 +228,53 @@ public class LambdaCalculus {
  * ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ
  */
     public static String normalize(Expression e) {
-        return new Object() {
-            StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
+        new Object() {
             Binder<BoundVariable, String> binder = new Binder<>();
-            int variableNumber = 0;
+            int seq = 0;
 
             void paren(Expression e, boolean paren) {
             	if (paren)
             		sb.append("(");
-            	normalize(e);
+            	process(e);
             	if (paren)
             		sb.append(")");
             }
 
-            String normalize(Expression e) {
-                if (e instanceof Lambda l) {
-                    String variableName = String.valueOf(
-                        (char)(NORMALIZED_VAR_NAME_BASE + variableNumber++));
-                    sb.append("\\").append(variableName).append(".");
-                    binder.bind(l.variable, variableName,
-                    	() -> normalize(l.body));
-                    --variableNumber;   // スコープを外れたら番号をリセットします。
+            void lambda(Expression e, String sep) {
+            	if (e instanceof Lambda l) {
+					String name = String.valueOf((char)(NORMALIZED_VAR_NAME_BASE + seq++));
+					sb.append(sep).append(name);
+					binder.bind(l.variable, name, () -> {
+						lambda(l.body, " ");
+						return null;
+					});
+					--seq;
+            	} else {
+            		sb.append(".");
+            		process(e);
+            	}
+            }
+
+            void process(Expression e) {
+            	if (e instanceof FreeVariable f)
+            		sb.append(f.name);
+            	else if (e instanceof BoundVariable b) {
+            		String x = binder.get(b);
+            		if (x == null)
+                        throw error("unknown bound variable: %s", b);
+            		sb.append(x);
+            	} else if (e instanceof Lambda l) {
+            		lambda(l, "λ");
                 } else if (e instanceof Application a) {
                 	paren(a.head, a.head instanceof Lambda);
                     sb.append(" ");
                 	paren(a.tail, !(a.tail instanceof Variable));
-                } else if (e instanceof BoundVariable v) {
-                    String x = binder.get(v);
-                    if (x == null)
-                        throw error("unknown bound variable: %s", v);
-                    sb.append(x);
                 } else
-                    sb.append(e);
-                return sb.toString();
+    				throw error("unknown expression: %s", e);
             }
-        }.normalize(e);
+        }.process(e);
+        return sb.toString();
     }
  
     public static String tree(Expression e) {

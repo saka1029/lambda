@@ -4,6 +4,8 @@ import static saka1029.lambda.LambdaCalculus.*;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class TestLambdaCalculus {
@@ -16,9 +18,9 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseLambda() {
-        assertEquals("\\a.b", parse("λa.b").toString());
-        assertEquals("\\a b.c", parse("λa.λb.c").toString());
-        assertEquals("\\a b.c", parse("λa b.c").toString());
+        assertEquals("λa.b", parse("λa.b").toString());
+        assertEquals("λa b.c", parse("λa.λb.c").toString());
+        assertEquals("λa b.c", parse("λa b.c").toString());
     }
 
     static Lambda asLambda(Expression e) {
@@ -37,9 +39,9 @@ public class TestLambdaCalculus {
 
     @Test
     public void testParseLambdaBackslash() {
-        assertEquals("\\a.b", parse("\\a.b").toString());
-        assertEquals("\\a b.c", parse("\\a.\\b.c").toString());
-        assertEquals("\\a b.c", parse("\\a b.c").toString());
+        assertEquals("λa.b", parse("\\a.b").toString());
+        assertEquals("λa b.c", parse("\\a.\\b.c").toString());
+        assertEquals("λa b.c", parse("\\a b.c").toString());
     }
 
     @Test
@@ -56,27 +58,52 @@ public class TestLambdaCalculus {
         Expression e = parse("\\𩸽.𩸽");
         Lambda l = (Lambda)e;
         assertEquals(l.variable, l.body);
-        assertEquals("\\𩸽.𩸽", parse("\\𩸽.𩸽").toString());
+        assertEquals("λ𩸽.𩸽", parse("\\𩸽.𩸽").toString());
     }
 
     @Test
     public void testToString() {
-        assertEquals("\\a.b", parse("\\a.b").toString());
-        assertEquals("\\a.a", parse("\\a.a").toString());
-        assertEquals("\\a b c.a b c", parse("\\a b c.a b c").toString());
-        assertEquals("\\a b c.a b c", parse("\\a b c.(a b c)").toString());
-        assertEquals("\\a a a.a", parse("\\a.\\a.\\a.a").toString());
-        assertEquals("\\a.a (\\b.a) b", parse("\\a.((a \\b.a) b)").toString());
+        assertEquals("λa.b", parse("\\a.b").toString());
+        assertEquals("λa.a", parse("\\a.a").toString());
+        assertEquals("λa b c.a b c", parse("\\a b c.a b c").toString());
+        assertEquals("λa b c.a b c", parse("\\a b c.(a b c)").toString());
+        assertEquals("λa a a.a", parse("\\a.\\a.\\a.a").toString());
+        assertEquals("λa.a (λb.a) b", parse("\\a.((a \\b.a) b)").toString());
+    }
+
+    @Test
+    public void testString() {
+        assertEquals("λa.b", string(parse("\\a.b")));
+        assertEquals("λa.a", string(parse("\\a.a")));
+        assertEquals("λa b c.a b c", string(parse("\\a b c.a b c")));
+        assertEquals("λa b c.a b c", string(parse("\\a b c.(a b c)")));
+        assertEquals("λa a a.a", string(parse("\\a.\\a.\\a.a")));
+        assertEquals("λa.a (λb.a) b", string(parse("\\a.((a \\b.a) b)")));
+    }
+
+    static void assertMatches(String expected, String actual) {
+//    	System.out.println("expected=" + expected + " actual=" + actual);
+    	assertTrue(actual.matches(expected));
+    }
+
+    @Test
+    public void testStringDetail() {
+        assertMatches("λa_\\d+.b", stringDetail(parse("\\a.b")));
+        assertMatches("λa(_\\d+).a\\1", stringDetail(parse("\\a.a")));
+        assertMatches("λa(_\\d+) b(_\\d+) c(_\\d+).a\\1 b\\2 c\\3", stringDetail(parse("\\a b c.a b c")));
+        assertMatches("λa(_\\d+) b(_\\d+) c(_\\d+).a\\1 b\\2 c\\3", stringDetail(parse("\\a b c.(a b c)")));
+        assertMatches("λa(_\\d+) a(_\\d+) a(_\\d+).a\\3", stringDetail(parse("\\a.\\a.\\a.a")));
+        assertMatches("λa(_\\d+).a\\1 \\(λb(_\\d+).a\\1\\) b", stringDetail(parse("\\a.((a \\b.a) b)")));
     }
 
     @Test
     public void testNormalize() {
-        assertEquals("\\a.y", normalize(parse("\\x.y")));
-        assertEquals("\\a.a", normalize(parse("\\x.x")));
-        assertEquals("\\a.\\b.\\c.a b c", normalize(parse("\\x y z.x y z")));
-        assertEquals("\\a.\\b.\\c.a b c", normalize(parse("\\x y z.(x y z)")));
-        assertEquals("\\a.\\b.\\c.c", normalize(parse("\\x.\\x.\\x.x")));
-        assertEquals("(\\a.a) (\\a.a)", normalize(parse("(\\x.x)(\\y.y)")));
+        assertEquals("λa.y", normalize(parse("\\x.y")));
+        assertEquals("λa.a", normalize(parse("\\x.x")));
+        assertEquals("λa b c.a b c", normalize(parse("\\x y z.x y z")));
+        assertEquals("λa b c.a b c", normalize(parse("\\x y z.(x y z)")));
+        assertEquals("λa b c.c", normalize(parse("\\x.\\x.\\x.x")));
+        assertEquals("(λa.a) (λa.a)", normalize(parse("(\\x.x)(\\y.y)")));
     }
 
     static String nl(String s) {

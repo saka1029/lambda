@@ -1,6 +1,6 @@
 package saka1029.lambda;
 
-public class Application implements Expression {
+public class Application extends Expression {
 
     public final Expression head, tail;
     
@@ -15,11 +15,5 @@ public class Application implements Expression {
 
     static String paren(Expression e, boolean paren) {
         return paren ? "(" + e + ")" : "" + e;
-    }
-
-    @Override
-    public String toString() {
-        return paren(head, head instanceof Lambda)
-            + " " + paren(tail, !(tail instanceof Variable));
     }
 }
