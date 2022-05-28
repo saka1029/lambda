@@ -300,6 +300,35 @@ public class LambdaCalculus {
         }
     }
 
+    public static Expression expand(Expression e, Map<FreeVariable, Expression> context) {
+    	return new Object() {
+    		Binder<BoundVariable, BoundVariable> binder = new Binder<>();
+    		
+    		Expression process(Expression e) {
+    			if (e instanceof FreeVariable f) {
+    				Expression n = context.get(f);
+    				return n == null ? f : process(n);
+    			} else if (e instanceof BoundVariable b) {
+    				BoundVariable n = binder.get(b);
+    				if (n == null)
+    					throw error("undefine bound variable: %s", b);
+    				return n;
+    			} else if (e instanceof Lambda l) {
+    				BoundVariable o = l.variable;
+    				BoundVariable n = BoundVariable.of(l.variable.name);
+    				return binder.bind(o, n,
+    					() -> {
+    						Expression nb = process(l.body);
+    						return Lambda.of(n, nb, binder.refCount(o));
+    					});
+    			} else if (e instanceof Application a) {
+    				return Application.of(process(a.head), process(a.tail));
+    			} else
+    				throw error("unknown expression: %s", e);
+    		}
+    	}.process(e);
+    }
+
     public static Expression reduce(Expression e, Map<FreeVariable, Expression> context) {
         var obj = new Object() {
             Binder<BoundVariable, Expression> binding = new Binder<>();
