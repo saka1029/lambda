@@ -329,78 +329,126 @@ public class LambdaCalculus {
     	}.process(e);
     }
 
+//    public static Expression reduce(Expression e, Map<FreeVariable, Expression> context) {
+//        var obj = new Object() {
+//            Binder<BoundVariable, Expression> binding = new Binder<>();
+//
+//            int n = 0;
+//
+//            String indent(int n) {
+//                return "  ".repeat(n);
+//            }
+//
+//            Expression replace(Expression e) {
+//            	Expression r;
+//            	if (e instanceof FreeVariable f) {
+//            		Expression v = context.get(f);
+//            		r = v == null ? f : v;
+//            	} else if (e instanceof BoundVariable b) {
+//            		Expression v = binding.get(b);
+//            		r = v == null ? b : v;
+//            	} else if (e instanceof Lambda l) {
+//            		BoundVariable n = BoundVariable.of(l.variable.name);
+//            		r = binding.bind(l.variable, n,
+//            			() -> Lambda.of(n, replace(l.body), binding.refCount(n)));
+//            	} else if (e instanceof Application a) {
+//            		r = Application.of(replace(a.head), replace(a.tail));
+//            	} else
+//                    throw error("unknown expression: %s", e);
+//            	return r;
+//            }
+//
+//            Expression reduce(Expression e) {
+////                System.out.printf("%s< %s %s%n", indent(n), e, binding);
+//                ++n;
+//                Expression r;
+//                if (e instanceof FreeVariable f) {
+//                    Expression v = context.get(f);
+//                    r = v == null ? f : v;
+//                } else if (e instanceof BoundVariable b) {
+//                    Expression v = binding.get(b);
+//                    r = v == null ? b : v;
+//                } else if (e instanceof Lambda l) {
+//                	if (l.refCount == 0)
+//                		// η-変換 (eta-conversion)
+//                		r = reduce(l.body);	
+//                	else {
+//                		// α-変換 (alpha-conversion)
+//                		BoundVariable oldVar = l.variable;
+//                        BoundVariable newVar = BoundVariable.of(l.variable.name);
+//                        r = binding.bind(oldVar, newVar,
+//                            () -> {
+//                            	Expression newBody = reduce(l.body);
+//                            	return Lambda.of(newVar, newBody, binding.refCount(oldVar));
+//                            });
+//                	}
+//                } else if (e instanceof Application a) {
+//                	Expression h = reduce(a.head);
+//                	Expression t = reduce(a.tail);
+//                	if (h instanceof Lambda l)
+//                		// β-簡約 (beta-conversion)
+//                		r = binding.bind(l.variable, t, () -> reduce(l.body));
+//                	else
+//                		r = Application.of(h, t);
+//                } else
+//                    throw error("unknown expression: %s", e);
+//                --n;
+////                System.out.printf("%s> %s%n", indent(n), r);
+//                return r;
+//            }
+//        };
+//        return obj.reduce(e);
+//    }
+
     public static Expression reduce(Expression e, Map<FreeVariable, Expression> context) {
-        var obj = new Object() {
-            Binder<BoundVariable, Expression> binding = new Binder<>();
-
-            int n = 0;
-
-            String indent(int n) {
-                return "  ".repeat(n);
-            }
-
-            Expression replace(Expression e) {
-            	Expression r;
-            	if (e instanceof FreeVariable f) {
-            		Expression v = context.get(f);
-            		r = v == null ? f : v;
-            	} else if (e instanceof BoundVariable b) {
-            		Expression v = binding.get(b);
-            		r = v == null ? b : v;
-            	} else if (e instanceof Lambda l) {
-            		BoundVariable n = BoundVariable.of(l.variable.name);
-            		r = binding.bind(l.variable, n,
-            			() -> Lambda.of(n, replace(l.body), binding.refCount(n)));
-            	} else if (e instanceof Application a) {
-            		r = Application.of(replace(a.head), replace(a.tail));
-            	} else
-                    throw error("unknown expression: %s", e);
-            	return r;
-            }
-
-            Expression reduce(Expression e) {
-//                System.out.printf("%s< %s %s%n", indent(n), e, binding);
-                ++n;
-                Expression r;
-                if (e instanceof FreeVariable f) {
-                    Expression v = context.get(f);
-                    r = v == null ? f : v;
-                } else if (e instanceof BoundVariable b) {
-                    Expression v = binding.get(b);
-                    r = v == null ? b : v;
-                } else if (e instanceof Lambda l) {
-                	if (l.refCount == 0)
-                		// η-変換 (eta-conversion)
-                		r = reduce(l.body);	
-                	else {
-                		// α-変換 (alpha-conversion)
-                		BoundVariable oldVar = l.variable;
-                        BoundVariable newVar = BoundVariable.of(l.variable.name);
-                        r = binding.bind(oldVar, newVar,
-                            () -> {
-                            	Expression newBody = reduce(l.body);
-                            	return Lambda.of(newVar, newBody, binding.refCount(oldVar));
-                            });
-                	}
-                } else if (e instanceof Application a) {
-                	Expression h = reduce(a.head);
-                	Expression t = reduce(a.tail);
-                	if (h instanceof Lambda l)
-                		// β-簡約 (beta-conversion)
-                		r = binding.bind(l.variable, t, () -> reduce(l.body));
-                	else
-                		r = Application.of(h, t);
-                } else
-                    throw error("unknown expression: %s", e);
-                --n;
-//                System.out.printf("%s> %s%n", indent(n), r);
-                return r;
-            }
-        };
-        return obj.reduce(e);
+    	return reduce(expand(e, context));
     }
 
     public static Expression reduce(Expression e) {
-        return reduce(e, new HashMap<>());
+    	return new Object() {
+    		Binder<BoundVariable, Expression> binder = new Binder();
+
+            Expression replace(Expression e) {
+            	Expression result;
+            	if (e instanceof FreeVariable f) {
+            		result = f;
+            	} else if (e instanceof BoundVariable b) {
+            		Expression v = binder.get(b);
+            		result = v == null ? b : v;
+            	} else if (e instanceof Lambda l) {
+            		BoundVariable o = l.variable;
+            		BoundVariable n = BoundVariable.of(l.variable.name);
+            		result = binder.bind(o, n,
+            			() -> {
+            				Expression x = replace(l.body);
+            				return Lambda.of(n, x, binder.refCount(o));
+            			});
+            	} else if (e instanceof Application a) {
+            		result = Application.of(replace(a.head), replace(a.tail));
+            	} else
+                    throw error("unknown expression: %s", e);
+            	return result;
+            }
+    		
+    		Expression process(Expression e) {
+    			Expression result;
+    			if (e instanceof FreeVariable f) {
+    				result = f;
+    			} else if (e instanceof BoundVariable b) {
+    				Expression x = binder.get(b);
+    				result = x == null ? b : x;
+    			} else if (e instanceof Lambda l) {
+    				result = l;
+    			} else if (e instanceof Application a) {
+    				if (a.head instanceof Lambda l)
+    					result = binder.bind(l.variable, a.tail,
+    						() -> replace(process(l.body)));
+    				else
+    					result = process(Application.of(process(a.head), process(a.tail)));
+    			} else
+                    throw error("unknown expression: %s", e);
+    			return result;
+    		}
+    	}.process(e);
     }
 }
