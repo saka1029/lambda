@@ -317,10 +317,7 @@ public class LambdaCalculus {
     				BoundVariable o = l.variable;
     				BoundVariable n = BoundVariable.of(l.variable.name);
     				return binder.bind(o, n,
-    					() -> {
-    						Expression nb = process(l.body);
-    						return Lambda.of(n, nb, binder.refCount(o));
-    					});
+    					() -> Lambda.of(n, process(l.body), binder.refCount(o)));
     			} else if (e instanceof Application a) {
     				return Application.of(process(a.head), process(a.tail));
     			} else
@@ -405,7 +402,7 @@ public class LambdaCalculus {
     }
 
     public static Expression reduce(Expression e) {
-    	return new Object() {
+    	var obj = new Object() {
     		Binder<BoundVariable, Expression> binder = new Binder<>();
 
     		Expression process(Expression e) {
@@ -416,13 +413,15 @@ public class LambdaCalculus {
     				Expression x = binder.get(b);
     				result = x == null ? b : x;
     			} else if (e instanceof Lambda l) {
-    				BoundVariable o = l.variable;
-    				BoundVariable n = BoundVariable.of(o.name);
-    				result = binder.bind(o, n,
-    					() -> {
-    						Expression b = process(l.body);
-    						return Lambda.of(n, b, binder.refCount(o));
-    					});
+//    				Expression x = l.etaConversion();
+//    				if (x != null)
+//    					result = process(x);
+//    				else {
+                        BoundVariable o = l.variable;
+                        BoundVariable n = BoundVariable.of(o.name);
+                        result = binder.bind(o, n,
+                            () -> Lambda.of(n, process(l.body), binder.refCount(o)));
+//    				}
     			} else if (e instanceof Application a) {
     				Expression head = process(a.head);
     				Expression tail = process(a.tail);
@@ -435,6 +434,7 @@ public class LambdaCalculus {
                     throw error("unknown expression: %s", e);
     			return result;
     		}
-    	}.process(e);
+    	};
+    	return obj.process(e);
     }
 }
