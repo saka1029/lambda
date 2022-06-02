@@ -53,18 +53,18 @@ public class TestLambdaCalculusReduce {
 		equals(context, "2", "PLUS2 1 1");
 		equals(context, "3", "PLUS2 1 2");
 		define(context, "MULT", "λm n.m (PLUS n) 0");
-//		define(context, "MULT", "λm n.m ((λm n f x.m f (n f x)) n) 0");
-//		equals(context, "0", "MULT 0 1");
+		define(context, "MULT", "λm n.m ((λm n f x.m f (n f x)) n) 0");
+		equals(context, "0", "MULT 0 1");
 		equals(context, "1", "MULT 1 1");
 		equals(context, "2", "MULT 1 2");
 		define(context, "PRED", "λn f x.n (λg h.h (g f)) (λu.x) (λu.u)");
-//		equals(context, "1", "PRED 2");
-//		equals(context, "2", "PRED 3");
-//		equals(context, "2", "PRED (PRED 3)");
+		equals(context, "1", "PRED 2");
+		equals(context, "2", "PRED 3");
+		equals(context, "1", "PRED (PRED 3)");
 		define(context, "PRED2", " λn.n (λg k.(g 1) (λu.PLUS (g k) 1) k) (λv.0) 0");
-//		equals(context, "1", "PRED2 2");
-//		equals(context, "2", "PRED2 3");
-//		equals(context, "2", "PRED2 (PRED2 3)");
+		equals(context, "1", "PRED2 2");
+		equals(context, "2", "PRED2 3");
+		equals(context, "1", "PRED2 (PRED2 3)");
 	}
 
 }

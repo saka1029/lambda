@@ -406,30 +406,8 @@ public class LambdaCalculus {
 
     public static Expression reduce(Expression e) {
     	return new Object() {
-    		Binder<BoundVariable, Expression> binder = new Binder();
+    		Binder<BoundVariable, Expression> binder = new Binder<>();
 
-            Expression replace(Expression e) {
-            	Expression result;
-            	if (e instanceof FreeVariable f) {
-            		result = f;
-            	} else if (e instanceof BoundVariable b) {
-            		Expression v = binder.get(b);
-            		result = v == null ? b : v;
-            	} else if (e instanceof Lambda l) {
-            		BoundVariable o = l.variable;
-            		BoundVariable n = BoundVariable.of(l.variable.name);
-            		result = binder.bind(o, n,
-            			() -> {
-            				Expression x = replace(l.body);
-            				return Lambda.of(n, x, binder.refCount(o));
-            			});
-            	} else if (e instanceof Application a) {
-            		result = Application.of(replace(a.head), replace(a.tail));
-            	} else
-                    throw error("unknown expression: %s", e);
-            	return result;
-            }
-    		
     		Expression process(Expression e) {
     			Expression result;
     			if (e instanceof FreeVariable f) {
@@ -438,13 +416,21 @@ public class LambdaCalculus {
     				Expression x = binder.get(b);
     				result = x == null ? b : x;
     			} else if (e instanceof Lambda l) {
-    				result = l;
+    				BoundVariable o = l.variable;
+    				BoundVariable n = BoundVariable.of(o.name);
+    				result = binder.bind(o, n,
+    					() -> {
+    						Expression b = process(l.body);
+    						return Lambda.of(n, b, binder.refCount(o));
+    					});
     			} else if (e instanceof Application a) {
-    				if (a.head instanceof Lambda l)
-    					result = binder.bind(l.variable, a.tail,
-    						() -> replace(process(l.body)));
+    				Expression head = process(a.head);
+    				Expression tail = process(a.tail);
+    				if (head instanceof Lambda l)
+    					result = binder.bind(l.variable, tail,
+    						() -> process(l.body));
     				else
-    					result = process(Application.of(process(a.head), process(a.tail)));
+    					result = Application.of(head, tail);
     			} else
                     throw error("unknown expression: %s", e);
     			return result;
