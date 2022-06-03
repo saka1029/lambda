@@ -168,8 +168,16 @@ public class TestLambdaCalculus {
     
     @Test
     public void testSame() {
+    	assertTrue(same(parse("x"), parse("x")));
+    	assertTrue(same(parse("x x"), parse("x x")));
     	assertTrue(same(parse("λa.a"), parse("λx.x")));
-    	assertFalse(same(parse("λa.a"), parse("λx.a")));
+    	assertTrue(same(parse("λa.w"), parse("λx.w")));
     	assertTrue(same(parse("λa.λb.λc.c"), parse("λx.λx.λx.x")));
+    	assertTrue(same(parse("λa b c.c"), parse("λx.λx.λx.x")));
+    	assertTrue(same(parse("λa.λb.λc.c"), parse("λx x x.x")));
+    	assertTrue(same(parse("λa b c.c"), parse("λx x x.x")));
+    	assertFalse(same(parse("a a"), parse("x x")));
+    	assertFalse(same(parse("λa.λb.λc.a"), parse("λx.λx.λx.x")));
+    	assertFalse(same(parse("λa.a"), parse("λx.a")));
     }
 }
