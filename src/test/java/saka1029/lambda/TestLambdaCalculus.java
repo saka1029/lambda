@@ -3,6 +3,7 @@ package saka1029.lambda;
 import static saka1029.lambda.LambdaCalculus.*;
 import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -163,5 +164,12 @@ public class TestLambdaCalculus {
                     lambda a
                         a
             """, nl(tree(parse("\\a.\\a.\\a.a"))));
+    }
+    
+    @Test
+    public void testSame() {
+    	assertTrue(same(parse("λa.a"), parse("λx.x")));
+    	assertFalse(same(parse("λa.a"), parse("λx.a")));
+    	assertTrue(same(parse("λa.λb.λc.c"), parse("λx.λx.λx.x")));
     }
 }

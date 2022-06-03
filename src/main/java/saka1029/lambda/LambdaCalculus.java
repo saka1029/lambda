@@ -448,7 +448,21 @@ public class LambdaCalculus {
     		Binder<BoundVariable, BoundVariable> binder = new Binder<>();
 
     		boolean test(Expression left, Expression right) {
-    			
+    			if (left instanceof FreeVariable)
+    				return left.equals(right);
+    			else if (left instanceof BoundVariable l)
+    				return right instanceof BoundVariable r
+    					&& r.equals(binder.get(l));
+    			else if (left instanceof Lambda l)
+    				return right instanceof Lambda r
+    					&& binder.bind(l.variable, r.variable,
+    						() -> (boolean)test(l.body, r.body));
+    			else if (left instanceof Application l)
+    				return right instanceof Application r
+    					&& test(l.head, r.head)
+    					&& test(l.tail, r.tail);
+    			else
+                    throw error("unknown expression: %s", left);
     		}
     	};
     	return obj.test(left, right);
