@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class LambdaCalculus {
 
@@ -436,5 +437,20 @@ public class LambdaCalculus {
     		}
     	};
     	return obj.process(e);
+    }
+    
+    public static boolean same(Expression left, Expression right) {
+    	Objects.requireNonNull(left);
+    	Objects.requireNonNull(right);
+    	if (left == right)
+    		return true;
+    	var obj =  new Object() {
+    		Binder<BoundVariable, BoundVariable> binder = new Binder<>();
+
+    		boolean test(Expression left, Expression right) {
+    			
+    		}
+    	};
+    	return obj.test(left, right);
     }
 }

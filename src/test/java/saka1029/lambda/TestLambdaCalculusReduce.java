@@ -103,6 +103,12 @@ public class TestLambdaCalculusReduce {
 		equals(context, "FALSE", "AND TRUE FALSE");
 		equals(context, "FALSE", "AND FALSE TRUE");
 		equals(context, "FALSE", "AND FALSE FALSE");
+		equals(context, "TRUE", "OR TRUE TRUE");
+		equals(context, "TRUE", "OR TRUE FALSE");
+		equals(context, "TRUE", "OR FALSE TRUE");
+		equals(context, "FALSE", "OR FALSE FALSE");
+		equals(context, "FALSE", "NOT TRUE");
+		equals(context, "TRUE", "NOT FALSE");
 //		「述語」とは、真理値を返す関数のことである。計算論において最も基本的な述語は
 //		ISZERO で、これは引数がチャーチ数の 0であった場合には TRUE を、
 //		そうでなければ FALSE を返す関数であり、以下のように定義できる。
