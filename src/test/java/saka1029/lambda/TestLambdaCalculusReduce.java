@@ -15,9 +15,8 @@ public class TestLambdaCalculusReduce {
 		context.put(FreeVariable.of(freeVariableName), parse(expression));
 	}
 
-	static void equals(Map<FreeVariable, Expression> context, String expected, String actual) {
-		assertEquals(reduce(parse(expected), context).toString(),
-                     reduce(parse(actual), context).toString());
+	static void sameReduce(Map<FreeVariable, Expression> context, String expected, String actual) {
+		assertTrue(same(reduce(parse(expected), context), reduce(parse(actual), context)));
 	}
 
 	/**
@@ -40,47 +39,47 @@ public class TestLambdaCalculusReduce {
 //		上のチャーチ数の定義のもとで、後続（後者）を計算する関数、すなわち n を受け取って n + 1 を返す関数を定義することができる。
 //		それは以下のようになる。
 		define(context, "SUCC", "λn f x.f (n f x)");
-		equals(context, "1", "SUCC 0");
-		equals(context, "2", "SUCC 1");
-		equals(context, "2", "SUCC (SUCC 0)");
-		equals(context, "3", "SUCC (SUCC 1)");
+		sameReduce(context, "1", "SUCC 0");
+		sameReduce(context, "2", "SUCC 1");
+		sameReduce(context, "2", "SUCC (SUCC 0)");
+		sameReduce(context, "3", "SUCC (SUCC 1)");
 //		また、加算は以下のように定義できる。
 		define(context, "PLUS", "λm n f x.m f (n f x)");
-		equals(context, "1", "PLUS 0 1");
-		equals(context, "2", "PLUS 1 1");
-		equals(context, "3", "PLUS 1 2");
-		equals(context, "3", "PLUS 1 (SUCC 1)");
+		sameReduce(context, "1", "PLUS 0 1");
+		sameReduce(context, "2", "PLUS 1 1");
+		sameReduce(context, "3", "PLUS 1 2");
+		sameReduce(context, "3", "PLUS 1 (SUCC 1)");
 //		または単にSUCCを用いて、以下のように定義してもよい。
 		define(context, "PLUS2", "λm n.m SUCC n");
-		equals(context, "1", "PLUS2 0 1");
-		equals(context, "2", "PLUS2 1 1");
-		equals(context, "3", "PLUS2 1 2");
+		sameReduce(context, "1", "PLUS2 0 1");
+		sameReduce(context, "2", "PLUS2 1 1");
+		sameReduce(context, "3", "PLUS2 1 2");
 //		PLUS は2つの自然数をとり1つの自然数を返す関数である。
 //		この理解のためには例えば、 PLUS 2 3 == 5 であることを確認してみるとよいだろう。
 //		また、乗算は以下のように定義される。
 		define(context, "MULT", "λm n.m (PLUS n) 0");
-		equals(context, "0", "MULT 0 1");
-		equals(context, "1", "MULT 1 1");
-		equals(context, "2", "MULT 1 2");
+		sameReduce(context, "0", "MULT 0 1");
+		sameReduce(context, "1", "MULT 1 1");
+		sameReduce(context, "2", "MULT 1 2");
 //		この定義は、 m と n の乗算は、 0 に n を m回加えることと等しい、ということを利用して作られている。
 //		もう少し短く、以下のように定義することもできる。
 		define(context, "MULT2", "λm n f. m (n f)");
-		equals(context, "0", "MULT2 0 1");
-		equals(context, "1", "MULT2 1 1");
-		equals(context, "2", "MULT2 1 2");
+		sameReduce(context, "0", "MULT2 0 1");
+		sameReduce(context, "1", "MULT2 1 1");
+		sameReduce(context, "2", "MULT2 1 2");
 //		正の整数 n の先行（前者）を計算する関数 PRED n = n − 1 は簡単ではなく、
 		define(context, "PRED", "λn f x.n (λg h.h (g f)) (λu.x) (λu.u)");
-		equals(context, "1", "PRED 2");
-		equals(context, "2", "PRED 3");
-		equals(context, "1", "PRED (PRED 3)");
+		sameReduce(context, "1", "PRED 2");
+		sameReduce(context, "2", "PRED 3");
+		sameReduce(context, "1", "PRED (PRED 3)");
 //		もしくは
 		define(context, "PRED2", " λn.n (λg k.(g 1) (λu.PLUS (g k) 1) k) (λv.0) 0");
 //		と定義される。
 //		上の部分式 (g 1) (λu. PLUS (g k) 1) k は、 g(1) がゼロとなるとき k に評価され、
 //		そうでないときは g(k) + 1 に評価されることに注意せよ[1]。
-		equals(context, "1", "PRED2 2");
-		equals(context, "2", "PRED2 3");
-		equals(context, "1", "PRED2 (PRED2 3)");
+		sameReduce(context, "1", "PRED2 2");
+		sameReduce(context, "2", "PRED2 3");
+		sameReduce(context, "1", "PRED2 (PRED2 3)");
 	}
 
 	/**
@@ -99,16 +98,16 @@ public class TestLambdaCalculusReduce {
 		define(context, "OR", "λp q.p TRUE q");
 		define(context, "NOT", "λp.p FALSE TRUE");
 		define(context, "IFTHENELSE", "λp x y.p x y");
-		equals(context, "TRUE", "AND TRUE TRUE");
-		equals(context, "FALSE", "AND TRUE FALSE");
-		equals(context, "FALSE", "AND FALSE TRUE");
-		equals(context, "FALSE", "AND FALSE FALSE");
-		equals(context, "TRUE", "OR TRUE TRUE");
-		equals(context, "TRUE", "OR TRUE FALSE");
-		equals(context, "TRUE", "OR FALSE TRUE");
-		equals(context, "FALSE", "OR FALSE FALSE");
-		equals(context, "FALSE", "NOT TRUE");
-		equals(context, "TRUE", "NOT FALSE");
+		sameReduce(context, "TRUE", "AND TRUE TRUE");
+		sameReduce(context, "FALSE", "AND TRUE FALSE");
+		sameReduce(context, "FALSE", "AND FALSE TRUE");
+		sameReduce(context, "FALSE", "AND FALSE FALSE");
+		sameReduce(context, "TRUE", "OR TRUE TRUE");
+		sameReduce(context, "TRUE", "OR TRUE FALSE");
+		sameReduce(context, "TRUE", "OR FALSE TRUE");
+		sameReduce(context, "FALSE", "OR FALSE FALSE");
+		sameReduce(context, "FALSE", "NOT TRUE");
+		sameReduce(context, "TRUE", "NOT FALSE");
 //		「述語」とは、真理値を返す関数のことである。計算論において最も基本的な述語は
 //		ISZERO で、これは引数がチャーチ数の 0であった場合には TRUE を、
 //		そうでなければ FALSE を返す関数であり、以下のように定義できる。
@@ -117,11 +116,11 @@ public class TestLambdaCalculusReduce {
 		define(context, "1", "λf x.f x");
 		define(context, "2", "λf x.f (f x)");
 		define(context, "3", "λf x.f (f (f x))");
-		equals(context, "TRUE", "ISZERO 0");
-		equals(context, "FALSE", "ISZERO 1");
-		equals(context, "FALSE", "ISZERO 2");
-		equals(context, "FALSE", "ISZERO 3");
-		equals(context, "TRUE", "ISZERO FALSE");
+		sameReduce(context, "TRUE", "ISZERO 0");
+		sameReduce(context, "FALSE", "ISZERO 1");
+		sameReduce(context, "FALSE", "ISZERO 2");
+		sameReduce(context, "FALSE", "ISZERO 3");
+		sameReduce(context, "TRUE", "ISZERO FALSE");
 	}
 
 }

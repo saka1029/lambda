@@ -2,6 +2,7 @@ package saka1029.lambda;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class FreeVariable extends Variable {
 
@@ -9,6 +10,7 @@ public class FreeVariable extends Variable {
 
     private FreeVariable(String name) {
         super(name);
+        Objects.requireNonNull(name);
     }
 
     public static FreeVariable of(String name) {

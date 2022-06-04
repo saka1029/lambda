@@ -1,5 +1,7 @@
 package saka1029.lambda;
 
+import java.util.Objects;
+
 public class Lambda extends Expression {
 
     public final BoundVariable variable;
@@ -7,6 +9,10 @@ public class Lambda extends Expression {
     public final Expression body;
 
     private Lambda(BoundVariable variable, Expression body, int refCount) {
+    	Objects.requireNonNull(variable);
+    	Objects.requireNonNull(body);
+    	if (refCount < 0)
+    		throw new IllegalArgumentException("refCount must be >= 0");
         this.variable = variable;
         this.refCount = refCount;
         this.body = body;

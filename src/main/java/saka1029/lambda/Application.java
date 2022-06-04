@@ -1,10 +1,14 @@
 package saka1029.lambda;
 
+import java.util.Objects;
+
 public class Application extends Expression {
 
     public final Expression head, tail;
     
     private Application(Expression head, Expression tail) {
+    	Objects.requireNonNull(head);
+    	Objects.requireNonNull(tail);
         this.head = head;
         this.tail = tail;
     }
