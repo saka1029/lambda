@@ -122,5 +122,31 @@ public class TestLambdaCalculusReduce {
 		sameReduce(context, "FALSE", "ISZERO 3");
 		sameReduce(context, "TRUE", "ISZERO FALSE");
 	}
+	
+	/**
+	 * ラムダ計算#対 - Wikipedia
+	 * https://ja.wikipedia.org/wiki/%E3%83%A9%E3%83%A0%E3%83%80%E8%A8%88%E7%AE%97#%E5%AF%BE
+	 * 
+	 */
+	@Test
+	public void testChurchPairs() {
+		Map<FreeVariable, Expression> context = new HashMap<>();
+//		（2つ組の）順序対のデータ型は、 TRUE および FALSE を用いて定義することができる。
+//		これらはチャーチ対（英語版）（英: Church pairs）とよばれている。
+		define(context, "TRUE", "λx y.x");
+		define(context, "FALSE", "λx y.y");
+		define(context, "CONS", "λs b f.f s b");
+        define(context, "CAR", "λp.p TRUE");
+        define(context, "CDR", "λp.p FALSE");
+        sameReduce(context, "λf.f A B", "CONS A B");
+        define(context, "A+B", "CONS A B");
+        sameReduce(context, "A", "CAR A+B");
+        sameReduce(context, "B", "CDR A+B");
+        define(context, "A+B+C", "CONS A (CONS B C)");
+        sameReduce(context, "A", "CAR A+B+C");
+        sameReduce(context, "CONS B C", "CDR A+B+C");
+        sameReduce(context, "B", "CAR (CDR A+B+C)");
+        sameReduce(context, "C", "CDR (CDR A+B+C)");
+	}
 
 }
