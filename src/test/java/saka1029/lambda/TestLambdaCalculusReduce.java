@@ -144,9 +144,9 @@ public class TestLambdaCalculusReduce {
         sameReduce(context, "B", "CDR A+B");
         define(context, "A+B+C", "CONS A (CONS B C)");
         sameReduce(context, "A", "CAR A+B+C");
-        sameReduce(context, "CONS B C", "CDR A+B+C");
         sameReduce(context, "B", "CAR (CDR A+B+C)");
         sameReduce(context, "C", "CDR (CDR A+B+C)");
+        sameReduce(context, "CONS B C", "CDR A+B+C");
 	}
 
 }
